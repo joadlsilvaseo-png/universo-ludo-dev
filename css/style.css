@@ -935,6 +935,35 @@ LOJA
 
   transform: rotate(4deg);
 }
+
+/* IMAGEM REAL DA LOJA ONLINE */
+
+.store__image {
+  display: block;
+
+  width: 100%;
+  height: auto;
+
+  border-radius: var(--radius-lg);
+
+  object-fit: contain;
+}
+
+.store__visual {
+  min-height: 0;
+
+  display: block;
+
+  background: #ffffff;
+}
+
+.store-card--badge {
+  z-index: 3;
+
+  left: 22px;
+  bottom: 22px;
+}
+
 .store__content {
   position: relative;
 
@@ -3796,5 +3825,20 @@ MENU RESPONSIVO - TABLET E MOBILE
   .rentals__floating--bottom {
     bottom: 12px;
     left: 12px;
+  }
+}
+@media (max-width: 820px) {
+  .store__visual {
+    min-height: 0;
+  }
+
+  .store__image {
+    width: 100%;
+    height: auto;
+  }
+
+  .store-card--badge {
+    left: 14px;
+    bottom: 14px;
   }
 }
