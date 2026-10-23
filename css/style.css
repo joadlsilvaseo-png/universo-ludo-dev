@@ -3110,6 +3110,60 @@ LOCALIZAÇÃO - UNIVERSO LUDO
   border: 0;
 }
 
+.visit__facade {
+  position: relative;
+
+  height: 190px;
+  overflow: hidden;
+
+  border-bottom: 1px solid var(--border);
+
+  background: #ffffff;
+}
+
+.visit__facade img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+  object-position: center;
+}
+
+.visit__facade::after {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  background: linear-gradient(
+    180deg,
+    transparent 45%,
+    rgba(15, 23, 42, 0.72) 100%
+  );
+
+  pointer-events: none;
+}
+
+.visit__facade span {
+  position: absolute;
+  left: 18px;
+  bottom: 16px;
+  z-index: 2;
+
+  padding: 8px 12px;
+
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.92);
+
+  color: var(--text-primary);
+
+  font-size: 0.78rem;
+  font-weight: 800;
+
+  box-shadow: var(--shadow-sm);
+}
+
 /* CARD DE INFORMAÇÕES */
 
 .visit__info {
@@ -3354,6 +3408,10 @@ RESPONSIVIDADE
     min-height: 350px;
   }
 
+  .visit__facade {
+    height: 170px;
+  }
+
   .visit__info {
     padding: 26px;
   }
@@ -3384,6 +3442,17 @@ RESPONSIVIDADE
   .visit__map iframe {
     height: 320px;
     min-height: 320px;
+  }
+
+  .visit__facade {
+    height: 155px;
+  }
+
+  .visit__facade span {
+    left: 12px;
+    bottom: 12px;
+
+    font-size: 0.7rem;
   }
 
   .visit__info {
