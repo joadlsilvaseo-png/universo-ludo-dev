@@ -1497,10 +1497,11 @@ MARCA DA LIGA - LOJA ONLINE
 }
 
 .store__platform-icon {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
 
-  object-fit: contain;
+  object-fit: cover;
+  object-position: center;
 
   border-radius: 8px;
 }
@@ -4078,7 +4079,7 @@ MOBILE
   }
 
   .store__content {
-    order: initial;
+    order: -1;
     padding: 26px 22px;
   }
 
