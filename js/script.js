@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
   ========================================================= */
 
   window.addEventListener("resize", () => {
-    if (window.innerWidth > 1280) {
+    if (window.innerWidth > 1100) {
       closeMenu();
     }
   });
@@ -216,6 +216,132 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     /* FECHAR COM ESC É NATIVO DO DIALOG */
+  }
+
+  /* =========================================================
+  CARROSSEL - CAMPEONATOS
+  ========================================================= */
+
+  const championshipsCarousel = document.querySelector(
+    ".championships-carousel",
+  );
+
+  if (championshipsCarousel) {
+    const slides = Array.from(
+      championshipsCarousel.querySelectorAll(
+        ".championships-carousel__slide",
+      ),
+    );
+
+    const dots = Array.from(
+      championshipsCarousel.querySelectorAll(
+        ".championships-carousel__dot",
+      ),
+    );
+
+    const prevButton = championshipsCarousel.querySelector(
+      ".championships-carousel__arrow--prev",
+    );
+
+    const nextButton = championshipsCarousel.querySelector(
+      ".championships-carousel__arrow--next",
+    );
+
+    let currentSlide = 0;
+    let autoplay = null;
+    let isHovering = false;
+    let hasFocus = false;
+
+    function showChampionshipSlide(index) {
+      currentSlide = (index + slides.length) % slides.length;
+
+      slides.forEach((slide, i) => {
+        const active = i === currentSlide;
+
+        slide.classList.toggle("is-active", active);
+        slide.setAttribute("aria-hidden", String(!active));
+      });
+
+      dots.forEach((dot, i) => {
+        const active = i === currentSlide;
+
+        dot.classList.toggle("is-active", active);
+        dot.setAttribute("aria-pressed", String(active));
+      });
+    }
+
+    function stopChampionshipAutoplay() {
+      clearInterval(autoplay);
+      autoplay = null;
+    }
+
+    function startChampionshipAutoplay() {
+      stopChampionshipAutoplay();
+
+      if (
+        slides.length < 2 ||
+        document.hidden ||
+        isHovering ||
+        hasFocus
+      ) {
+        return;
+      }
+
+      autoplay = setInterval(() => {
+        showChampionshipSlide(currentSlide + 1);
+      }, 5000);
+    }
+
+    function goToChampionshipSlide(index) {
+      showChampionshipSlide(index);
+      startChampionshipAutoplay();
+    }
+
+    prevButton?.addEventListener("click", () => {
+      goToChampionshipSlide(currentSlide - 1);
+    });
+
+    nextButton?.addEventListener("click", () => {
+      goToChampionshipSlide(currentSlide + 1);
+    });
+
+    dots.forEach((dot, index) => {
+      dot.addEventListener("click", () => {
+        goToChampionshipSlide(index);
+      });
+    });
+
+    championshipsCarousel.addEventListener("mouseenter", () => {
+      isHovering = true;
+      stopChampionshipAutoplay();
+    });
+
+    championshipsCarousel.addEventListener("mouseleave", () => {
+      isHovering = false;
+      startChampionshipAutoplay();
+    });
+
+    championshipsCarousel.addEventListener("focusin", () => {
+      hasFocus = true;
+      stopChampionshipAutoplay();
+    });
+
+    championshipsCarousel.addEventListener("focusout", (event) => {
+      if (!championshipsCarousel.contains(event.relatedTarget)) {
+        hasFocus = false;
+        startChampionshipAutoplay();
+      }
+    });
+
+    document.addEventListener(
+      "visibilitychange",
+      startChampionshipAutoplay,
+    );
+
+    if (slides.length) {
+      showChampionshipSlide(0);
+      startChampionshipAutoplay();
+    }
   }
 
   /* =========================================================
