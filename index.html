@@ -32,37 +32,12 @@
 
       <nav class="header__nav" aria-label="Navegação principal">
 
-        <a href="#inicio">
-          Início
-        </a>
-
-        <a href="#compra-cartas">
-          Compra de Cartas
-        </a>
-
-        <a href="#campeonatos">
-          Campeonatos
-        </a>
-
-        <a href="#tcg-colecionaveis">
-          TCG e Colecionáveis
-        </a>
-
-        <a href="#aluguel-jogos">
-          Aluguel de Jogos
-        </a>
-
-        <a href="#tabuleria">
-          Tabuleria
-        </a>
-
-        <a href="#eventos">
-          Eventos
-        </a>
-
-        <a href="#sobre">
-          Sobre Nós
-        </a>
+        <a href="#inicio">Início</a>
+        <a href="#campeonatos">Campeonatos</a>
+        <a href="#tcg-colecionaveis">TCG e Colecionáveis</a>
+        <a href="#aluguel-jogos">Aluguel de Jogos</a>
+        <a href="#eventos">Eventos</a>
+        <a href="#sobre">Quem Somos</a>
 
       </nav>
 
@@ -119,7 +94,7 @@
             </a>
 
             <a href="#sobre" class="btn btn--secondary">
-              Conheça a Ludo
+              Quem Somos
             </a>
 
           </div>
@@ -224,6 +199,16 @@
 
         <div class="store__content">
 
+          <div class="store__platform">
+            <img
+              src="https://is1-ssl.mzstatic.com/image/thumb/Purple116/v4/38/29/a5/3829a5fe-40aa-f3b5-99b2-34d8c9d7ff02/AppIcon-1x_U007emarketing-0-6-0-85-220.jpeg/1200x630wa.png"
+              alt="Símbolo da Liga"
+              class="store__platform-icon"
+              loading="lazy"
+              referrerpolicy="no-referrer">
+            <span>Liga Pokémon</span>
+          </div>
+
           <span class="section-tag">
             Loja Online
           </span>
@@ -239,7 +224,7 @@
             dos jogos dentro e fora da mesa.
           </p>
 
-          <a href="#" target="_blank" rel="noopener noreferrer" class="btn btn--primary">
+          <a href="https://www.ligamagic.com.br/?view=ecom/home&id=708521" target="_blank" rel="noopener noreferrer" class="btn btn--primary">
             Acessar nossa loja
           </a>
 
@@ -412,20 +397,6 @@
 
         </div>
 
-        <div class="card-purchase__card card-purchase__card--front">
-          <span>COMPRA DE</span>
-          <strong>CARTAS</strong>
-          <small>✦</small>
-        </div>
-
-      </div>
-
-      <div class="card-purchase__floating">
-        🃏 Dê um novo destino à sua coleção
-      </div>
-
-      </div>
-
       </div>
 
     </section>
@@ -479,11 +450,38 @@
 
         </div>
 
-        <!-- IMAGEM DO CAMPEONATO -->
+        <!-- CARROSSEL DOS CAMPEONATOS -->
 
         <div class="championships__visual">
 
-          <img src="./assets/campeonatos-ludo.png" alt="Jogadores participando de um campeonato Pokémon TCG" class="championships__image" loading="lazy">
+          <div class="championships-carousel" aria-label="Fotos dos campeonatos da Universo Ludo" aria-roledescription="carrossel">
+
+            <div class="championships-carousel__slides">
+
+              <div class="championships-carousel__slide is-active">
+                <img src="./assets/campeonatos-ludo.png" alt="Jogadores participando de um campeonato na Universo Ludo" loading="lazy">
+              </div>
+
+              <div class="championships-carousel__slide">
+                <img src="./assets/carrossel-campeonatos.png" alt="Comunidade reunida nos campeonatos da Universo Ludo" loading="lazy">
+              </div>
+
+            </div>
+
+            <button class="championships-carousel__arrow championships-carousel__arrow--prev" type="button" aria-label="Foto anterior">
+              &#10094;
+            </button>
+
+            <button class="championships-carousel__arrow championships-carousel__arrow--next" type="button" aria-label="Próxima foto">
+              &#10095;
+            </button>
+
+            <div class="championships-carousel__dots">
+              <button class="championships-carousel__dot is-active" type="button" data-slide="0" aria-label="Foto 1"></button>
+              <button class="championships-carousel__dot" type="button" data-slide="1" aria-label="Foto 2"></button>
+            </div>
+
+          </div>
 
         </div>
 
@@ -520,7 +518,7 @@
 
         <!-- POKÉMON -->
 
-        <a href="#" class="registration-modal__option" data-registration="pokemon">
+        <a href="https://events.pokemon.com/EventLocator/LocationDetail?EventDetailGUID=&range=15&latitude=-23.4596858&startdate=2026-10-24&LocationGuid=ba4b4a4b-61c0-488f-a34a-2fe3eaca402a&storename=UNIVERSO+LUDO+BOARDGAME+%26+TCG&iskm=false&locale=pt-BR&LocationName=UNIVERSO+LUDO+BOARDGAME+%26+TCG&longitude=-46.5328559" target="_blank" rel="noopener noreferrer" class="registration-modal__option" data-registration="pokemon">
 
           <span class="registration-modal__icon">⚡</span>
 
@@ -535,7 +533,7 @@
 
         <!-- LORCANA -->
 
-        <a href="#" class="registration-modal__option" data-registration="lorcana">
+        <a href="https://tcg.ravensburgerplay.com/stores/8a68aa6a-e9d2-4175-b582-454b90de0fbf" target="_blank" rel="noopener noreferrer" class="registration-modal__option" data-registration="lorcana">
 
           <span class="registration-modal__icon">✦</span>
 
@@ -699,8 +697,8 @@
             </h3>
 
             <p>
-              Fale com a Ludo e faça
-              sua reserva.
+              Entre no link abaixo, escolha seus jogos
+              e faça sua reserva. É fácil e rápido.
             </p>
 
           </article>
@@ -785,7 +783,7 @@
           <p>
             Casal, família, crianças, grupo de amigos,
             iniciantes ou jogadores experientes.
-            A gente ajuda você a encontrar o jogo ideal.
+            Utilize os filtros e encontre o jogo ideal para a sua turma.
           </p>
 
         </div>
@@ -793,29 +791,29 @@
 
         <div class="recommendation__options">
 
-          <span>
-            ❤️ Casal
-          </span>
+          <a href="https://universoludo.rejoy.com.br/search" target="_blank" rel="noopener noreferrer" title="Abrir catálogo e filtrar por Jogo de Festa">
+            🎉 Jogo de Festa
+          </a>
 
-          <span>
-            👨‍👩‍👧 Família
-          </span>
+          <a href="https://universoludo.rejoy.com.br/search" target="_blank" rel="noopener noreferrer" title="Abrir catálogo e filtrar por Jogo Infantil">
+            👶 Jogo Infantil
+          </a>
 
-          <span>
-            🍕 Amigos
-          </span>
+          <a href="https://universoludo.rejoy.com.br/search" target="_blank" rel="noopener noreferrer" title="Abrir catálogo e filtrar por Jogo de Cartas">
+            🃏 Jogo de Cartas
+          </a>
 
-          <span>
-            🎉 Festa
-          </span>
+          <a href="https://universoludo.rejoy.com.br/search" target="_blank" rel="noopener noreferrer" title="Abrir catálogo e filtrar por Estratégia Abstrata">
+            🧠 Estratégia Abstrata
+          </a>
 
-          <span>
-            🧠 Estratégia
-          </span>
+          <a href="https://universoludo.rejoy.com.br/search" target="_blank" rel="noopener noreferrer" title="Abrir catálogo e filtrar por Quebra-Cabeça">
+            🧩 Quebra-Cabeça
+          </a>
 
-          <span>
-            👶 Crianças
-          </span>
+          <a href="https://universoludo.rejoy.com.br/search" target="_blank" rel="noopener noreferrer" title="Abrir catálogo e filtrar por Fantasia">
+            🐉 Fantasia
+          </a>
 
         </div>
 
@@ -885,8 +883,8 @@
 
           </div>
 
-          <a href="#contato" class="btn btn--primary">
-            Conheça a Tabuleria
+          <a href="#localizacao" class="btn btn--primary">
+            Endereço da Loja
           </a>
 
         </div>
@@ -902,57 +900,6 @@
 
       <div class="container events__container">
 
-        <div class="events__content">
-
-          <span class="section-tag">
-            Eventos Universo Ludo
-          </span>
-
-
-          <h2>
-            Seu evento merece
-            <strong>uma experiência diferente.</strong>
-          </h2>
-
-          <p>
-            Reúna pessoas, descubra novas possibilidades
-            e transforme encontros em momentos especiais
-            com os jogos da Universo Ludo.
-          </p>
-
-
-          <ul class="events__list">
-
-            <li>
-              Aniversários
-            </li>
-
-            <li>
-              Empresas
-            </li>
-
-            <li>
-              Condomínios
-            </li>
-
-            <li>
-              Escolas
-            </li>
-
-            <li>
-              Eventos particulares
-            </li>
-
-          </ul>
-
-
-          <a href="https://wa.me/5511914715518" target="_blank" rel="noopener noreferrer" class="btn btn--primary">
-            Planejar meu evento
-          </a>
-
-        </div>
-
-
         <div class="events__visual">
 
           <span class="events__visual-tag">
@@ -967,31 +914,50 @@
 
           <div class="events__visual-cards">
 
-            <span>
-              Aniversários
-            </span>
-
-            <span>
-              Empresas
-            </span>
-
-            <span>
-              Condomínios
-            </span>
+            <span>Aniversários</span>
+            <span>Empresas</span>
+            <span>Condomínios</span>
 
           </div>
 
-          <div class="events__dice">
-            ⚄
-          </div>
+          <div class="events__dice">⚄</div>
+
+        </div>
+
+        <div class="events__content">
+
+          <span class="section-tag">
+            Eventos Universo Ludo
+          </span>
+
+          <h2>
+            Seu evento merece
+            <strong>uma experiência diferente.</strong>
+          </h2>
+
+          <p>
+            Reúna pessoas, descubra novas possibilidades
+            e transforme encontros em momentos especiais
+            com os jogos da Universo Ludo.
+          </p>
+
+          <ul class="events__list">
+            <li>Aniversários</li>
+            <li>Empresas</li>
+            <li>Condomínios</li>
+            <li>Escolas</li>
+            <li>Eventos particulares</li>
+          </ul>
+
+          <a href="https://wa.me/5511980937331?text=Ol%C3%A1%2C%20Daniele%21%20Vi%20o%20site%20da%20Universo%20Ludo%20e%20gostaria%20de%20saber%20mais%20sobre%20as%20op%C3%A7%C3%B5es%20para%20eventos." target="_blank" rel="noopener noreferrer" class="btn btn--primary">
+            Planejar meu evento
+          </a>
 
         </div>
 
       </div>
 
     </section>
-
-
 
     <!-- =====================================================
         SOBRE
@@ -1254,9 +1220,7 @@
           Eventos
         </a>
 
-        <a href="#sobre">
-          Sobre Nós
-        </a>
+        <a href="#sobre">Quem Somos</a>
 
       </div>
 
@@ -1268,16 +1232,16 @@
           Fale com a gente
         </h3>
 
-        <a href="#" target="_blank" rel="noopener noreferrer">
+        <a href="https://wa.me/5511914715518" target="_blank" rel="noopener noreferrer">
           WhatsApp
         </a>
 
-        <a href="#" target="_blank" rel="noopener noreferrer">
+        <a href="https://www.instagram.com/universoludo/" target="_blank" rel="noopener noreferrer">
           Instagram
         </a>
 
-        <a href="#loja">
-          Loja Online
+        <a href="https://www.ligamagic.com.br/?view=ecom/home&id=708521" target="_blank" rel="noopener noreferrer">
+          Loja Liga Pokémon
         </a>
 
       </div>
