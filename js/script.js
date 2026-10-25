@@ -227,16 +227,43 @@ document.addEventListener("DOMContentLoaded", () => {
   );
 
   if (championshipsCarousel) {
-    const slides = Array.from(
+    const extraChampionshipImages = [
+      {
+        src: "./assets/carrossel-campeonatos-02.png",
+        alt: "Campeonato Universo Ludo - foto 2",
+      },
+      {
+        src: "./assets/carrossel-campeonatos-03.png",
+        alt: "Campeonato Universo Ludo - foto 3",
+      },
+      {
+        src: "./assets/carrossel-campeonatos-04.png",
+        alt: "Campeonato Universo Ludo - foto 4",
+      },
+      {
+        src: "./assets/carrossel-campeonatos-05.png",
+        alt: "Campeonato Universo Ludo - foto 5",
+      },
+    ];
+
+    let slides = Array.from(
       championshipsCarousel.querySelectorAll(
         ".championships-carousel__slide",
       ),
     );
 
-    const dots = Array.from(
+    let dots = Array.from(
       championshipsCarousel.querySelectorAll(
         ".championships-carousel__dot",
       ),
+    );
+
+    const slidesContainer = championshipsCarousel.querySelector(
+      ".championships-carousel__slides",
+    );
+
+    const dotsContainer = championshipsCarousel.querySelector(
+      ".championships-carousel__dots",
     );
 
     const prevButton = championshipsCarousel.querySelector(
@@ -297,18 +324,72 @@ document.addEventListener("DOMContentLoaded", () => {
       startChampionshipAutoplay();
     }
 
+    function bindChampionshipDots() {
+      dots.forEach((dot, index) => {
+        if (dot.dataset.bound === "true") {
+          return;
+        }
+
+        dot.dataset.bound = "true";
+        dot.addEventListener("click", () => {
+          goToChampionshipSlide(index);
+        });
+      });
+    }
+
+    function preloadChampionshipImage(imageData) {
+      return new Promise((resolve) => {
+        const image = new Image();
+
+        image.onload = () => resolve(imageData);
+        image.onerror = () => resolve(null);
+        image.src = imageData.src;
+      });
+    }
+
+    async function loadExtraChampionshipImages() {
+      const loadedImages = await Promise.all(
+        extraChampionshipImages.map(preloadChampionshipImage),
+      );
+
+      loadedImages
+        .filter(Boolean)
+        .forEach((imageData) => {
+          const slide = document.createElement("div");
+          slide.className = "championships-carousel__slide";
+          slide.setAttribute("aria-hidden", "true");
+
+          const image = document.createElement("img");
+          image.src = imageData.src;
+          image.alt = imageData.alt;
+          image.loading = "lazy";
+
+          slide.appendChild(image);
+          slidesContainer?.appendChild(slide);
+
+          const dot = document.createElement("button");
+          dot.className = "championships-carousel__dot";
+          dot.type = "button";
+          dot.setAttribute("aria-label", `Foto ${slides.length + 1}`);
+          dot.dataset.slide = String(slides.length);
+
+          dotsContainer?.appendChild(dot);
+
+          slides.push(slide);
+          dots.push(dot);
+        });
+
+      bindChampionshipDots();
+      showChampionshipSlide(0);
+      startChampionshipAutoplay();
+    }
+
     prevButton?.addEventListener("click", () => {
       goToChampionshipSlide(currentSlide - 1);
     });
 
     nextButton?.addEventListener("click", () => {
       goToChampionshipSlide(currentSlide + 1);
-    });
-
-    dots.forEach((dot, index) => {
-      dot.addEventListener("click", () => {
-        goToChampionshipSlide(index);
-      });
     });
 
     championshipsCarousel.addEventListener("mouseenter", () => {
@@ -338,9 +419,11 @@ document.addEventListener("DOMContentLoaded", () => {
       startChampionshipAutoplay,
     );
 
+    bindChampionshipDots();
+
     if (slides.length) {
       showChampionshipSlide(0);
-      startChampionshipAutoplay();
+      loadExtraChampionshipImages();
     }
   }
 
