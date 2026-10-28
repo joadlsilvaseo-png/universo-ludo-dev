@@ -116,16 +116,45 @@ document.addEventListener("DOMContentLoaded", () => {
       linkDomain = "";
     }
 
-    window.gtag("event", "link_click", {
+    const linkType = getAnalyticsLinkType(anchor);
+    const linkSection = getAnalyticsSection(anchor);
+
+    const eventParams = {
       link_url: href,
       link_text: linkText.slice(0, 100),
       link_id: anchor.id || "",
       link_classes: anchor.className || "",
       link_domain: linkDomain,
       outbound: outbound ? 1 : 0,
-      link_type: getAnalyticsLinkType(anchor),
-      link_section: getAnalyticsSection(anchor),
-    });
+      link_type: linkType,
+      link_section: linkSection,
+    };
+
+    window.gtag("event", "link_click", eventParams);
+
+    const commercialEvents = {
+      whatsapp: "click_whatsapp",
+      phone: "click_phone",
+      online_store: "click_online_store",
+      rental: "click_rental",
+      maps: "click_maps",
+      championship_pokemon: "click_championship",
+      championship_lorcana: "click_championship",
+    };
+
+    const commercialEventName = commercialEvents[linkType];
+
+    if (commercialEventName) {
+      window.gtag("event", commercialEventName, {
+        ...eventParams,
+        championship_type:
+          linkType === "championship_pokemon"
+            ? "pokemon"
+            : linkType === "championship_lorcana"
+              ? "lorcana"
+              : "",
+      });
+    }
   }
 
   document.addEventListener("click", (event) => {
