@@ -15,6 +15,130 @@ document.addEventListener("DOMContentLoaded", () => {
   const currentYear = document.querySelector("#current-year");
 
   /* =========================================================
+  ANALYTICS — CLIQUES EM TODOS OS LINKS
+  ========================================================= */
+
+  function getAnalyticsSection(anchor) {
+    const section = anchor.closest("section[id]");
+
+    if (section?.id) {
+      return section.id;
+    }
+
+    if (anchor.closest("header")) {
+      return "header";
+    }
+
+    if (anchor.closest("footer")) {
+      return "footer";
+    }
+
+    if (anchor.closest("nav")) {
+      return "navigation";
+    }
+
+    return "page";
+  }
+
+  function getAnalyticsLinkType(anchor) {
+    const href = anchor.getAttribute("href") || "";
+
+    if (href.startsWith("#")) {
+      return "internal_navigation";
+    }
+
+    if (href.startsWith("tel:")) {
+      return "phone";
+    }
+
+    if (href.includes("wa.me") || href.includes("whatsapp.com")) {
+      return "whatsapp";
+    }
+
+    if (href.includes("instagram.com")) {
+      return "instagram";
+    }
+
+    if (href.includes("ligamagic.com.br")) {
+      return "online_store";
+    }
+
+    if (href.includes("universoludo.rejoy.com.br")) {
+      return "rental";
+    }
+
+    if (href.includes("events.pokemon.com")) {
+      return "championship_pokemon";
+    }
+
+    if (href.includes("ravensburgerplay.com")) {
+      return "championship_lorcana";
+    }
+
+    if (href.includes("google.com/maps")) {
+      return "maps";
+    }
+
+    try {
+      const url = new URL(href, window.location.href);
+
+      return url.origin === window.location.origin
+        ? "internal"
+        : "external";
+    } catch {
+      return "other";
+    }
+  }
+
+  function trackLinkClick(anchor) {
+    if (typeof window.gtag !== "function") {
+      return;
+    }
+
+    const href = anchor.getAttribute("href") || "";
+    const linkText =
+      anchor.getAttribute("aria-label") ||
+      anchor.textContent?.replace(/\s+/g, " ").trim() ||
+      "(sem texto)";
+
+    let linkDomain = window.location.hostname;
+    let outbound = false;
+
+    try {
+      const url = new URL(href, window.location.href);
+
+      linkDomain = url.hostname || window.location.hostname;
+      outbound =
+        !href.startsWith("#") &&
+        !href.startsWith("tel:") &&
+        url.origin !== window.location.origin;
+    } catch {
+      linkDomain = "";
+    }
+
+    window.gtag("event", "link_click", {
+      link_url: href,
+      link_text: linkText.slice(0, 100),
+      link_id: anchor.id || "",
+      link_classes: anchor.className || "",
+      link_domain: linkDomain,
+      outbound: outbound ? 1 : 0,
+      link_type: getAnalyticsLinkType(anchor),
+      link_section: getAnalyticsSection(anchor),
+    });
+  }
+
+  document.addEventListener("click", (event) => {
+    const anchor = event.target.closest("a[href]");
+
+    if (!anchor) {
+      return;
+    }
+
+    trackLinkClick(anchor);
+  });
+
+  /* =========================================================
   ANO AUTOMÁTICO
   ========================================================= */
 
