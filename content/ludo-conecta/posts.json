@@ -41,7 +41,7 @@
     "imageAlt": "Produtos Disney Lorcana",
     "url": "#conteudos",
     "placeholder": true,
-    "featured": false
+    "featured": true
   },
   {
     "title": "Como funciona um campeonato de TCG?",
@@ -61,6 +61,28 @@
     "date": "2026-10-23",
     "image": "../assets/tabuleria-ludo.png",
     "imageAlt": "Pessoas reunidas para jogar na Universo Ludo",
+    "url": "#conteudos",
+    "placeholder": true,
+    "featured": false
+  },
+  {
+    "title": "Como escolher um jogo de tabuleiro para seu grupo",
+    "summary": "Veja o que considerar antes de escolher o próximo jogo: número de pessoas, duração e estilo da mesa.",
+    "category": "Board Games",
+    "date": "2026-10-22",
+    "image": "../assets/carrossel-tabuleria.png",
+    "imageAlt": "Jogos de tabuleiro na Universo Ludo",
+    "url": "#conteudos",
+    "placeholder": true,
+    "featured": false
+  },
+  {
+    "title": "Colecionáveis: cuidados simples para conservar suas cartas",
+    "summary": "Organização, proteção e armazenamento para manter suas cartas bem cuidadas por mais tempo.",
+    "category": "Colecionáveis",
+    "date": "2026-10-21",
+    "image": "../assets/tcg-colecionaveis.png",
+    "imageAlt": "TCG e colecionáveis",
     "url": "#conteudos",
     "placeholder": true,
     "featured": false
