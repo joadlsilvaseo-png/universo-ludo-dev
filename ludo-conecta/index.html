@@ -102,9 +102,11 @@
         <div class="conecta-hero__content">
           <span class="conecta-kicker">Universo Ludo apresenta</span>
 
-          <h1>
-            Ludo <strong>Conecta</strong>
-          </h1>
+          <img
+            class="conecta-hero__brand"
+            src="../assets/ludo-conecta.png"
+            alt="Ludo Conecta"
+          >
 
           <p>
             Conteúdo para quem vive jogos, TCG, colecionáveis,
@@ -119,13 +121,28 @@
           </div>
         </div>
 
-        <div class="conecta-hero__visual" aria-hidden="true">
-          <div class="conecta-orbit conecta-orbit--one"></div>
-          <div class="conecta-orbit conecta-orbit--two"></div>
+        <div class="featured-carousel" id="destaques" aria-label="Artigos em destaque" aria-roledescription="carrossel">
+          <div class="featured-carousel__top">
+            <div>
+              <span class="section-tag">Destaques</span>
+              <h2>Para começar por aqui.</h2>
+            </div>
 
-          <div class="conecta-mark">
-            <img src="../assets/ludo-conecta.png" alt="Ludo Conecta">
+            <div class="featured-carousel__controls">
+              <button class="featured-carousel__arrow featured-carousel__arrow--prev" type="button" aria-label="Destaque anterior">
+                &#10094;
+              </button>
+              <button class="featured-carousel__arrow featured-carousel__arrow--next" type="button" aria-label="Próximo destaque">
+                &#10095;
+              </button>
+            </div>
           </div>
+
+          <div class="featured-carousel__viewport">
+            <div class="featured-carousel__track" id="ludo-featured-track"></div>
+          </div>
+
+          <div class="featured-carousel__dots" id="ludo-featured-dots" aria-label="Selecionar destaque"></div>
         </div>
 
       </div>
