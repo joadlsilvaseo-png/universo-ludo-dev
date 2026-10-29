@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
     prevSelector,
     nextSelector,
     analyticsEvent,
+    autoplayMs = 0,
   }) {
     const carousel = document.querySelector(root);
 
@@ -25,6 +26,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     let current = 0;
+    let autoplayTimer = null;
+    let pointerInside = false;
+    let keyboardFocusInside = false;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     function show(index) {
       current = (index + slides.length) % slides.length;
@@ -49,11 +54,40 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    prevButton?.addEventListener("click", () => show(current - 1));
-    nextButton?.addEventListener("click", () => show(current + 1));
+    function stopAutoplay() {
+      if (autoplayTimer !== null) {
+        window.clearInterval(autoplayTimer);
+        autoplayTimer = null;
+      }
+    }
+
+    function startAutoplay() {
+      stopAutoplay();
+
+      if (
+        autoplayMs <= 0 ||
+        slides.length < 2 ||
+        reducedMotion ||
+        document.hidden ||
+        pointerInside ||
+        keyboardFocusInside
+      ) {
+        return;
+      }
+
+      autoplayTimer = window.setInterval(() => show(current + 1), autoplayMs);
+    }
+
+    function goTo(index) {
+      show(index);
+      startAutoplay(); // Reinicia a contagem após uma interação manual.
+    }
+
+    prevButton?.addEventListener("click", () => goTo(current - 1));
+    nextButton?.addEventListener("click", () => goTo(current + 1));
 
     dots.forEach((dot, index) => {
-      dot.addEventListener("click", () => show(index));
+      dot.addEventListener("click", () => goTo(index));
     });
 
     let touchStartX = 0;
@@ -73,13 +107,42 @@ document.addEventListener("DOMContentLoaded", () => {
         const distance = touchEndX - touchStartX;
 
         if (Math.abs(distance) >= 45) {
-          show(distance < 0 ? current + 1 : current - 1);
+          goTo(distance < 0 ? current + 1 : current - 1);
         }
       },
       { passive: true },
     );
 
+    // Pausa quando o visitante está lendo, usando teclado, ou mudou de aba.
+    if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+      carousel.addEventListener("mouseenter", () => {
+        pointerInside = true;
+        stopAutoplay();
+      });
+      carousel.addEventListener("mouseleave", () => {
+        pointerInside = false;
+        startAutoplay();
+      });
+    }
+
+    carousel.addEventListener("focusin", (event) => {
+      if (event.target.matches(":focus-visible")) {
+        keyboardFocusInside = true;
+        stopAutoplay();
+      }
+    });
+
+    carousel.addEventListener("focusout", (event) => {
+      if (!carousel.contains(event.relatedTarget)) {
+        keyboardFocusInside = false;
+        startAutoplay();
+      }
+    });
+
+    document.addEventListener("visibilitychange", startAutoplay);
+
     show(0);
+    startAutoplay();
   }
 
   setupStaticCarousel({
@@ -90,6 +153,7 @@ document.addEventListener("DOMContentLoaded", () => {
     prevSelector: ".shop-carousel__arrow--prev",
     nextSelector: ".shop-carousel__arrow--next",
     analyticsEvent: "store_banner_view",
+    autoplayMs: 3000,
   });
 
   const videoCarousel = document.querySelector(".video-carousel");
@@ -157,6 +221,8 @@ document.addEventListener("DOMContentLoaded", () => {
     showSlide(0);
   }
 
+  const blogHome = document.querySelector(".blog-home");
+  const blogHeading = document.querySelector(".blog-heading");
   const postsSection = document.querySelector(".conecta-posts");
   const postsContainer = document.querySelector("#ludo-posts");
   const filtersContainer = document.querySelector("#ludo-filters");
@@ -187,6 +253,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!featuredPosts.length) {
       return;
     }
+
+    blogHome?.classList.remove("is-empty");
+    if (blogHeading) blogHeading.hidden = false;
 
     const mainPost = featuredPosts[0];
     const sidePosts = featuredPosts.slice(1, 4);
@@ -229,6 +298,8 @@ document.addEventListener("DOMContentLoaded", () => {
         )
         .join("");
 
+      desktopFeatured.classList.toggle("desktop-featured--single", sidePosts.length === 0);
+      desktopList.hidden = sidePosts.length === 0;
       desktopFeatured.hidden = false;
     }
 
@@ -308,13 +379,16 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      renderFeatured(posts);
+      // Rascunhos editoriais permanecem visiveis na diagramação,
+      // mas nao apontam para artigos inexistentes.
+      const visiblePosts = posts;
+      renderFeatured(visiblePosts);
 
       if (!postsSection || !postsContainer || !filtersContainer) {
         return;
       }
 
-      const regularPosts = posts.filter((post) => !post.featured);
+      const regularPosts = visiblePosts.filter((post) => !post.featured);
 
       if (!regularPosts.length) {
         postsSection.hidden = true;
