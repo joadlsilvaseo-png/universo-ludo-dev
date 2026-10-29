@@ -315,12 +315,9 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      // Os rascunhos do JSON servem apenas para revisar o layout em desenvolvimento.
-      // Nao aparecem no dominio publico nem como artigos publicados.
-      const localPreview = ["localhost", "127.0.0.1"].includes(window.location.hostname) &&
-        new URLSearchParams(window.location.search).get("preview") === "layout";
-      const visiblePosts = localPreview ? posts : posts.filter((post) => post.placeholder !== true);
-
+      // Rascunhos editoriais permanecem visiveis na diagramação,
+      // mas nao apontam para artigos inexistentes.
+      const visiblePosts = posts;
       renderFeatured(visiblePosts);
 
       if (!postsSection || !postsContainer || !filtersContainer) {
