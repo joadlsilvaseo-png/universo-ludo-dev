@@ -157,6 +157,8 @@ document.addEventListener("DOMContentLoaded", () => {
     showSlide(0);
   }
 
+  const blogHome = document.querySelector(".blog-home");
+  const blogHeading = document.querySelector(".blog-heading");
   const postsSection = document.querySelector(".conecta-posts");
   const postsContainer = document.querySelector("#ludo-posts");
   const filtersContainer = document.querySelector("#ludo-filters");
@@ -187,6 +189,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!featuredPosts.length) {
       return;
     }
+
+    blogHome?.classList.remove("is-empty");
+    if (blogHeading) blogHeading.hidden = false;
 
     const mainPost = featuredPosts[0];
     const sidePosts = featuredPosts.slice(1, 4);
@@ -229,6 +234,8 @@ document.addEventListener("DOMContentLoaded", () => {
         )
         .join("");
 
+      desktopFeatured.classList.toggle("desktop-featured--single", sidePosts.length === 0);
+      desktopList.hidden = sidePosts.length === 0;
       desktopFeatured.hidden = false;
     }
 
@@ -308,13 +315,19 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      renderFeatured(posts);
+      // Os rascunhos do JSON servem apenas para revisar o layout em desenvolvimento.
+      // Nao aparecem no dominio publico nem como artigos publicados.
+      const localPreview = ["localhost", "127.0.0.1"].includes(window.location.hostname) &&
+        new URLSearchParams(window.location.search).get("preview") === "layout";
+      const visiblePosts = localPreview ? posts : posts.filter((post) => post.placeholder !== true);
+
+      renderFeatured(visiblePosts);
 
       if (!postsSection || !postsContainer || !filtersContainer) {
         return;
       }
 
-      const regularPosts = posts.filter((post) => !post.featured);
+      const regularPosts = visiblePosts.filter((post) => !post.featured);
 
       if (!regularPosts.length) {
         postsSection.hidden = true;
