@@ -7,7 +7,8 @@
     "image": "../assets/tcg-pokemon.png",
     "imageAlt": "Produtos Pokémon TCG",
     "url": "#conteudos",
-    "placeholder": true
+    "placeholder": true,
+    "featured": true
   },
   {
     "title": "Onde jogar Pokémon TCG em Guarulhos?",
@@ -17,7 +18,8 @@
     "image": "../assets/campeonatos-ludo.png",
     "imageAlt": "Campeonato de TCG na Universo Ludo",
     "url": "#conteudos",
-    "placeholder": true
+    "placeholder": true,
+    "featured": true
   },
   {
     "title": "7 jogos de tabuleiro para reunir a família",
@@ -27,7 +29,8 @@
     "image": "../assets/aluguel-jogos-ludo.png",
     "imageAlt": "Seleção de jogos de tabuleiro",
     "url": "#conteudos",
-    "placeholder": true
+    "placeholder": true,
+    "featured": true
   },
   {
     "title": "Disney Lorcana: o que você precisa saber para começar",
@@ -37,7 +40,8 @@
     "image": "../assets/tcg-lorcana.png",
     "imageAlt": "Produtos Disney Lorcana",
     "url": "#conteudos",
-    "placeholder": true
+    "placeholder": true,
+    "featured": false
   },
   {
     "title": "Como funciona um campeonato de TCG?",
@@ -47,7 +51,8 @@
     "image": "../assets/carrossel-campeonatos-02.png",
     "imageAlt": "Jogadores participando de campeonato",
     "url": "#conteudos",
-    "placeholder": true
+    "placeholder": true,
+    "featured": false
   },
   {
     "title": "Jogos, encontros e histórias: por que jogar junto conecta pessoas",
@@ -57,6 +62,7 @@
     "image": "../assets/tabuleria-ludo.png",
     "imageAlt": "Pessoas reunidas para jogar na Universo Ludo",
     "url": "#conteudos",
-    "placeholder": true
+    "placeholder": true,
+    "featured": false
   }
 ]
