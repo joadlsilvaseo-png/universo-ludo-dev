@@ -1,12 +1,12 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const carousel = document.querySelector(".video-carousel");
+  const videoCarousel = document.querySelector(".video-carousel");
 
-  if (carousel) {
-    const track = carousel.querySelector(".video-carousel__track");
-    const slides = Array.from(carousel.querySelectorAll(".video-carousel__slide"));
-    const dots = Array.from(carousel.querySelectorAll(".video-carousel__dot"));
-    const prevButton = carousel.querySelector(".video-carousel__arrow--prev");
-    const nextButton = carousel.querySelector(".video-carousel__arrow--next");
+  if (videoCarousel) {
+    const track = videoCarousel.querySelector(".video-carousel__track");
+    const slides = Array.from(videoCarousel.querySelectorAll(".video-carousel__slide"));
+    const dots = Array.from(videoCarousel.querySelectorAll(".video-carousel__dot"));
+    const prevButton = videoCarousel.querySelector(".video-carousel__arrow--prev");
+    const nextButton = videoCarousel.querySelector(".video-carousel__arrow--next");
 
     let currentSlide = 0;
 
@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let touchStartX = 0;
 
-    carousel.addEventListener(
+    videoCarousel.addEventListener(
       "touchstart",
       (event) => {
         touchStartX = event.changedTouches[0]?.clientX || 0;
@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
       { passive: true },
     );
 
-    carousel.addEventListener(
+    videoCarousel.addEventListener(
       "touchend",
       (event) => {
         const touchEndX = event.changedTouches[0]?.clientX || 0;
@@ -101,12 +101,158 @@ document.addEventListener("DOMContentLoaded", () => {
   const postsSection = document.querySelector(".conecta-posts");
   const postsContainer = document.querySelector("#ludo-posts");
   const filtersContainer = document.querySelector("#ludo-filters");
+  const featuredCarousel = document.querySelector(".featured-carousel");
+  const featuredTrack = document.querySelector("#ludo-featured-track");
+  const featuredDots = document.querySelector("#ludo-featured-dots");
 
-  async function loadPosts() {
-    if (!postsSection || !postsContainer || !filtersContainer) {
+  function formatDate(value) {
+    if (!value) {
+      return "";
+    }
+
+    const date = new Date(`${value}T12:00:00`);
+
+    return new Intl.DateTimeFormat("pt-BR", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    }).format(date);
+  }
+
+  function renderFeaturedPosts(posts) {
+    if (!featuredCarousel || !featuredTrack || !featuredDots) {
       return;
     }
 
+    const featuredPosts = posts.filter((post) => post.featured);
+
+    if (!featuredPosts.length) {
+      featuredCarousel.hidden = true;
+      return;
+    }
+
+    featuredTrack.innerHTML = featuredPosts
+      .map(
+        (post, index) => `
+          <article class="featured-card${index === 0 ? " is-active" : ""}" data-featured-slide="${index}">
+            <a href="${post.url}" aria-label="Ler ${post.title}">
+              <div class="featured-card__image">
+                <img
+                  src="${post.image}"
+                  alt="${post.imageAlt || post.title}"
+                  loading="${index === 0 ? "eager" : "lazy"}"
+                >
+              </div>
+
+              <div class="featured-card__overlay"></div>
+
+              <div class="featured-card__content">
+                <div class="featured-card__meta">
+                  <span>${post.category || "Ludo Conecta"}</span>
+                  ${post.date ? `<time datetime="${post.date}">${formatDate(post.date)}</time>` : ""}
+                </div>
+
+                <h3>${post.title}</h3>
+                <p>${post.summary || ""}</p>
+                <span class="featured-card__link">Ler destaque →</span>
+              </div>
+            </a>
+          </article>
+        `,
+      )
+      .join("");
+
+    featuredDots.innerHTML = featuredPosts
+      .map(
+        (_, index) => `
+          <button
+            class="featured-carousel__dot${index === 0 ? " is-active" : ""}"
+            type="button"
+            data-featured-dot="${index}"
+            aria-label="Destaque ${index + 1}"
+            aria-pressed="${index === 0 ? "true" : "false"}"
+          ></button>
+        `,
+      )
+      .join("");
+
+    const slides = Array.from(featuredTrack.querySelectorAll(".featured-card"));
+    const dots = Array.from(featuredDots.querySelectorAll(".featured-carousel__dot"));
+    const prevButton = featuredCarousel.querySelector(".featured-carousel__arrow--prev");
+    const nextButton = featuredCarousel.querySelector(".featured-carousel__arrow--next");
+
+    let currentFeatured = 0;
+
+    function showFeatured(index) {
+      currentFeatured = (index + slides.length) % slides.length;
+      featuredTrack.style.transform = `translateX(-${currentFeatured * 100}%)`;
+
+      slides.forEach((slide, slideIndex) => {
+        const active = slideIndex === currentFeatured;
+
+        slide.classList.toggle("is-active", active);
+        slide.setAttribute("aria-hidden", String(!active));
+      });
+
+      dots.forEach((dot, dotIndex) => {
+        const active = dotIndex === currentFeatured;
+
+        dot.classList.toggle("is-active", active);
+        dot.setAttribute("aria-pressed", String(active));
+      });
+
+      if (typeof window.gtag === "function") {
+        window.gtag("event", "featured_article_view", {
+          article_position: currentFeatured + 1,
+          article_title: featuredPosts[currentFeatured]?.title || "",
+        });
+      }
+    }
+
+    prevButton?.addEventListener("click", () => {
+      showFeatured(currentFeatured - 1);
+    });
+
+    nextButton?.addEventListener("click", () => {
+      showFeatured(currentFeatured + 1);
+    });
+
+    dots.forEach((dot, index) => {
+      dot.addEventListener("click", () => {
+        showFeatured(index);
+      });
+    });
+
+    let touchStartX = 0;
+
+    featuredCarousel.addEventListener(
+      "touchstart",
+      (event) => {
+        touchStartX = event.changedTouches[0]?.clientX || 0;
+      },
+      { passive: true },
+    );
+
+    featuredCarousel.addEventListener(
+      "touchend",
+      (event) => {
+        const touchEndX = event.changedTouches[0]?.clientX || 0;
+        const distance = touchEndX - touchStartX;
+
+        if (Math.abs(distance) < 45) {
+          return;
+        }
+
+        showFeatured(distance < 0 ? currentFeatured + 1 : currentFeatured - 1);
+      },
+      { passive: true },
+    );
+
+    featuredCarousel.hidden = false;
+    showFeatured(0);
+  }
+
+  async function loadPosts() {
     try {
       const response = await fetch("../content/ludo-conecta/posts.json", {
         cache: "no-store",
@@ -122,32 +268,31 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
+      renderFeaturedPosts(posts);
+
+      if (!postsSection || !postsContainer || !filtersContainer) {
+        return;
+      }
+
+      const regularPosts = posts.filter((post) => !post.featured);
+
+      if (!regularPosts.length) {
+        postsSection.hidden = true;
+        return;
+      }
+
       const categories = [
         "Todos",
-        ...new Set(posts.map((post) => post.category).filter(Boolean)),
+        ...new Set(regularPosts.map((post) => post.category).filter(Boolean)),
       ];
 
       let activeCategory = "Todos";
 
-      function formatDate(value) {
-        if (!value) {
-          return "";
-        }
-
-        const date = new Date(`${value}T12:00:00`);
-
-        return new Intl.DateTimeFormat("pt-BR", {
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-        }).format(date);
-      }
-
       function renderPosts() {
         const visiblePosts =
           activeCategory === "Todos"
-            ? posts
-            : posts.filter((post) => post.category === activeCategory);
+            ? regularPosts
+            : regularPosts.filter((post) => post.category === activeCategory);
 
         postsContainer.innerHTML = visiblePosts
           .map(
@@ -217,7 +362,9 @@ document.addEventListener("DOMContentLoaded", () => {
       renderPosts();
       postsSection.hidden = false;
     } catch {
-      postsSection.hidden = true;
+      if (postsSection) {
+        postsSection.hidden = true;
+      }
     }
   }
 
