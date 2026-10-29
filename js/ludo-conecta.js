@@ -1,4 +1,97 @@
 document.addEventListener("DOMContentLoaded", () => {
+  function setupStaticCarousel({
+    root,
+    trackSelector,
+    slideSelector,
+    dotSelector,
+    prevSelector,
+    nextSelector,
+    analyticsEvent,
+  }) {
+    const carousel = document.querySelector(root);
+
+    if (!carousel) {
+      return;
+    }
+
+    const track = carousel.querySelector(trackSelector);
+    const slides = Array.from(carousel.querySelectorAll(slideSelector));
+    const dots = Array.from(carousel.querySelectorAll(dotSelector));
+    const prevButton = carousel.querySelector(prevSelector);
+    const nextButton = carousel.querySelector(nextSelector);
+
+    if (!track || !slides.length) {
+      return;
+    }
+
+    let current = 0;
+
+    function show(index) {
+      current = (index + slides.length) % slides.length;
+      track.style.transform = `translateX(-${current * 100}%)`;
+
+      slides.forEach((slide, slideIndex) => {
+        const active = slideIndex === current;
+        slide.classList.toggle("is-active", active);
+        slide.setAttribute("aria-hidden", String(!active));
+      });
+
+      dots.forEach((dot, dotIndex) => {
+        const active = dotIndex === current;
+        dot.classList.toggle("is-active", active);
+        dot.setAttribute("aria-pressed", String(active));
+      });
+
+      if (analyticsEvent && typeof window.gtag === "function") {
+        window.gtag("event", analyticsEvent, {
+          position: current + 1,
+        });
+      }
+    }
+
+    prevButton?.addEventListener("click", () => show(current - 1));
+    nextButton?.addEventListener("click", () => show(current + 1));
+
+    dots.forEach((dot, index) => {
+      dot.addEventListener("click", () => show(index));
+    });
+
+    let touchStartX = 0;
+
+    carousel.addEventListener(
+      "touchstart",
+      (event) => {
+        touchStartX = event.changedTouches[0]?.clientX || 0;
+      },
+      { passive: true },
+    );
+
+    carousel.addEventListener(
+      "touchend",
+      (event) => {
+        const touchEndX = event.changedTouches[0]?.clientX || 0;
+        const distance = touchEndX - touchStartX;
+
+        if (Math.abs(distance) >= 45) {
+          show(distance < 0 ? current + 1 : current - 1);
+        }
+      },
+      { passive: true },
+    );
+
+    show(0);
+  }
+
+  setupStaticCarousel({
+    root: ".shop-carousel",
+    trackSelector: ".shop-carousel__track",
+    slideSelector: ".shop-slide",
+    dotSelector: ".shop-carousel__dot",
+    prevSelector: ".shop-carousel__arrow--prev",
+    nextSelector: ".shop-carousel__arrow--next",
+    analyticsEvent: "store_banner_view",
+  });
+
   const videoCarousel = document.querySelector(".video-carousel");
 
   if (videoCarousel) {
@@ -37,14 +130,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
       slides.forEach((slide, slideIndex) => {
         const active = slideIndex === currentSlide;
-
         slide.classList.toggle("is-active", active);
         slide.setAttribute("aria-hidden", String(!active));
       });
 
       dots.forEach((dot, dotIndex) => {
         const active = dotIndex === currentSlide;
-
         dot.classList.toggle("is-active", active);
         dot.setAttribute("aria-pressed", String(active));
       });
@@ -56,44 +147,12 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    prevButton?.addEventListener("click", () => {
-      showSlide(currentSlide - 1);
-    });
-
-    nextButton?.addEventListener("click", () => {
-      showSlide(currentSlide + 1);
-    });
+    prevButton?.addEventListener("click", () => showSlide(currentSlide - 1));
+    nextButton?.addEventListener("click", () => showSlide(currentSlide + 1));
 
     dots.forEach((dot, index) => {
-      dot.addEventListener("click", () => {
-        showSlide(index);
-      });
+      dot.addEventListener("click", () => showSlide(index));
     });
-
-    let touchStartX = 0;
-
-    videoCarousel.addEventListener(
-      "touchstart",
-      (event) => {
-        touchStartX = event.changedTouches[0]?.clientX || 0;
-      },
-      { passive: true },
-    );
-
-    videoCarousel.addEventListener(
-      "touchend",
-      (event) => {
-        const touchEndX = event.changedTouches[0]?.clientX || 0;
-        const distance = touchEndX - touchStartX;
-
-        if (Math.abs(distance) < 45) {
-          return;
-        }
-
-        showSlide(distance < 0 ? currentSlide + 1 : currentSlide - 1);
-      },
-      { passive: true },
-    );
 
     showSlide(0);
   }
@@ -101,9 +160,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const postsSection = document.querySelector(".conecta-posts");
   const postsContainer = document.querySelector("#ludo-posts");
   const filtersContainer = document.querySelector("#ludo-filters");
-  const featuredCarousel = document.querySelector(".featured-carousel");
-  const featuredTrack = document.querySelector("#ludo-featured-track");
-  const featuredDots = document.querySelector("#ludo-featured-dots");
+  const desktopFeatured = document.querySelector("#desktop-featured");
+  const desktopMain = document.querySelector("#featured-main");
+  const desktopList = document.querySelector("#featured-list");
+  const mobileFeatured = document.querySelector("#mobile-featured");
+  const mobileTrack = document.querySelector("#mobile-featured-track");
+  const mobileDots = document.querySelector("#mobile-featured-dots");
 
   function formatDate(value) {
     if (!value) {
@@ -119,137 +181,115 @@ document.addEventListener("DOMContentLoaded", () => {
     }).format(date);
   }
 
-  function renderFeaturedPosts(posts) {
-    if (!featuredCarousel || !featuredTrack || !featuredDots) {
-      return;
-    }
-
+  function renderFeatured(posts) {
     const featuredPosts = posts.filter((post) => post.featured);
 
     if (!featuredPosts.length) {
-      featuredCarousel.hidden = true;
       return;
     }
 
-    featuredTrack.innerHTML = featuredPosts
-      .map(
-        (post, index) => `
-          <article class="featured-card${index === 0 ? " is-active" : ""}" data-featured-slide="${index}">
-            <a href="${post.url}" aria-label="Ler ${post.title}">
-              <div class="featured-card__image">
-                <img
-                  src="${post.image}"
-                  alt="${post.imageAlt || post.title}"
-                  loading="${index === 0 ? "eager" : "lazy"}"
-                >
+    const mainPost = featuredPosts[0];
+    const sidePosts = featuredPosts.slice(1, 4);
+
+    if (desktopFeatured && desktopMain && desktopList) {
+      desktopMain.innerHTML = `
+        <article class="desktop-main-card">
+          <a href="${mainPost.url}" aria-label="Ler ${mainPost.title}">
+            <div class="desktop-main-card__image">
+              <img src="${mainPost.image}" alt="${mainPost.imageAlt || mainPost.title}">
+            </div>
+            <div class="desktop-main-card__overlay"></div>
+            <div class="desktop-main-card__content">
+              <div class="desktop-main-card__meta">
+                ${mainPost.category || "Ludo Conecta"} · ${formatDate(mainPost.date)}
               </div>
+              <h3>${mainPost.title}</h3>
+              <p>${mainPost.summary || ""}</p>
+            </div>
+          </a>
+        </article>
+      `;
 
-              <div class="featured-card__overlay"></div>
-
-              <div class="featured-card__content">
-                <div class="featured-card__meta">
-                  <span>${post.category || "Ludo Conecta"}</span>
-                  ${post.date ? `<time datetime="${post.date}">${formatDate(post.date)}</time>` : ""}
+      desktopList.innerHTML = sidePosts
+        .map(
+          (post) => `
+            <article class="desktop-list-card">
+              <a href="${post.url}" aria-label="Ler ${post.title}">
+                <div class="desktop-list-card__image">
+                  <img src="${post.image}" alt="${post.imageAlt || post.title}" loading="lazy">
                 </div>
+                <div>
+                  <div class="desktop-list-card__meta">${post.category || "Ludo Conecta"}</div>
+                  <h3>${post.title}</h3>
+                  <p>${formatDate(post.date)}</p>
+                </div>
+              </a>
+            </article>
+          `,
+        )
+        .join("");
 
-                <h3>${post.title}</h3>
-                <p>${post.summary || ""}</p>
-                <span class="featured-card__link">Ler destaque →</span>
-              </div>
-            </a>
-          </article>
-        `,
-      )
-      .join("");
-
-    featuredDots.innerHTML = featuredPosts
-      .map(
-        (_, index) => `
-          <button
-            class="featured-carousel__dot${index === 0 ? " is-active" : ""}"
-            type="button"
-            data-featured-dot="${index}"
-            aria-label="Destaque ${index + 1}"
-            aria-pressed="${index === 0 ? "true" : "false"}"
-          ></button>
-        `,
-      )
-      .join("");
-
-    const slides = Array.from(featuredTrack.querySelectorAll(".featured-card"));
-    const dots = Array.from(featuredDots.querySelectorAll(".featured-carousel__dot"));
-    const prevButton = featuredCarousel.querySelector(".featured-carousel__arrow--prev");
-    const nextButton = featuredCarousel.querySelector(".featured-carousel__arrow--next");
-
-    let currentFeatured = 0;
-
-    function showFeatured(index) {
-      currentFeatured = (index + slides.length) % slides.length;
-      featuredTrack.style.transform = `translateX(-${currentFeatured * 100}%)`;
-
-      slides.forEach((slide, slideIndex) => {
-        const active = slideIndex === currentFeatured;
-
-        slide.classList.toggle("is-active", active);
-        slide.setAttribute("aria-hidden", String(!active));
-      });
-
-      dots.forEach((dot, dotIndex) => {
-        const active = dotIndex === currentFeatured;
-
-        dot.classList.toggle("is-active", active);
-        dot.setAttribute("aria-pressed", String(active));
-      });
-
-      if (typeof window.gtag === "function") {
-        window.gtag("event", "featured_article_view", {
-          article_position: currentFeatured + 1,
-          article_title: featuredPosts[currentFeatured]?.title || "",
-        });
-      }
+      desktopFeatured.hidden = false;
     }
 
-    prevButton?.addEventListener("click", () => {
-      showFeatured(currentFeatured - 1);
-    });
+    if (mobileFeatured && mobileTrack && mobileDots) {
+      mobileTrack.innerHTML = featuredPosts
+        .map(
+          (post, index) => `
+            <article class="mobile-featured-card${index === 0 ? " is-active" : ""}">
+              <a href="${post.url}" aria-label="Ler ${post.title}">
+                <div class="mobile-featured-card__image">
+                  <img src="${post.image}" alt="${post.imageAlt || post.title}" loading="${index === 0 ? "eager" : "lazy"}">
+                </div>
+                <div class="mobile-featured-card__overlay"></div>
+                <div class="mobile-featured-card__content">
+                  <div class="mobile-featured-card__meta">${post.category || "Ludo Conecta"}</div>
+                  <h3>${post.title}</h3>
+                </div>
+              </a>
+            </article>
+          `,
+        )
+        .join("");
 
-    nextButton?.addEventListener("click", () => {
-      showFeatured(currentFeatured + 1);
-    });
+      mobileDots.innerHTML = featuredPosts
+        .map(
+          (_, index) => `
+            <button
+              class="mobile-featured__dot${index === 0 ? " is-active" : ""}"
+              type="button"
+              aria-label="Destaque ${index + 1}"
+              aria-pressed="${index === 0 ? "true" : "false"}"
+            ></button>
+          `,
+        )
+        .join("");
 
-    dots.forEach((dot, index) => {
-      dot.addEventListener("click", () => {
-        showFeatured(index);
-      });
-    });
+      const slides = Array.from(mobileTrack.querySelectorAll(".mobile-featured-card"));
+      const dots = Array.from(mobileDots.querySelectorAll(".mobile-featured__dot"));
+      const prev = mobileFeatured.querySelector(".mobile-featured__arrow--prev");
+      const next = mobileFeatured.querySelector(".mobile-featured__arrow--next");
 
-    let touchStartX = 0;
+      let current = 0;
 
-    featuredCarousel.addEventListener(
-      "touchstart",
-      (event) => {
-        touchStartX = event.changedTouches[0]?.clientX || 0;
-      },
-      { passive: true },
-    );
+      function show(index) {
+        current = (index + slides.length) % slides.length;
+        mobileTrack.style.transform = `translateX(-${current * 100}%)`;
 
-    featuredCarousel.addEventListener(
-      "touchend",
-      (event) => {
-        const touchEndX = event.changedTouches[0]?.clientX || 0;
-        const distance = touchEndX - touchStartX;
+        dots.forEach((dot, dotIndex) => {
+          const active = dotIndex === current;
+          dot.classList.toggle("is-active", active);
+          dot.setAttribute("aria-pressed", String(active));
+        });
+      }
 
-        if (Math.abs(distance) < 45) {
-          return;
-        }
+      prev?.addEventListener("click", () => show(current - 1));
+      next?.addEventListener("click", () => show(current + 1));
+      dots.forEach((dot, index) => dot.addEventListener("click", () => show(index)));
 
-        showFeatured(distance < 0 ? currentFeatured + 1 : currentFeatured - 1);
-      },
-      { passive: true },
-    );
-
-    featuredCarousel.hidden = false;
-    showFeatured(0);
+      mobileFeatured.hidden = false;
+      show(0);
+    }
   }
 
   async function loadPosts() {
@@ -268,7 +308,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      renderFeaturedPosts(posts);
+      renderFeatured(posts);
 
       if (!postsSection || !postsContainer || !filtersContainer) {
         return;
@@ -300,11 +340,7 @@ document.addEventListener("DOMContentLoaded", () => {
               <article class="conecta-post-card">
                 <a href="${post.url}" aria-label="Ler ${post.title}">
                   <div class="conecta-post-card__image">
-                    <img
-                      src="${post.image}"
-                      alt="${post.imageAlt || post.title}"
-                      loading="lazy"
-                    >
+                    <img src="${post.image}" alt="${post.imageAlt || post.title}" loading="lazy">
                   </div>
 
                   <div class="conecta-post-card__content">
@@ -350,10 +386,7 @@ document.addEventListener("DOMContentLoaded", () => {
         filtersContainer
           .querySelectorAll(".conecta-filter")
           .forEach((filterButton) => {
-            filterButton.classList.toggle(
-              "is-active",
-              filterButton === button,
-            );
+            filterButton.classList.toggle("is-active", filterButton === button);
           });
 
         renderPosts();
@@ -362,9 +395,7 @@ document.addEventListener("DOMContentLoaded", () => {
       renderPosts();
       postsSection.hidden = false;
     } catch {
-      if (postsSection) {
-        postsSection.hidden = true;
-      }
+      postsSection?.setAttribute("hidden", "");
     }
   }
 
