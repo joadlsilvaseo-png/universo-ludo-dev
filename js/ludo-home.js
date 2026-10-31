@@ -81,7 +81,7 @@ function setupMobileCarousel(cards) {
     if (next) next.disabled = current === cards.length - 1;
     if (shouldScroll) {
       track.scrollTo({
-        left: cards[current].offsetLeft - track.offsetLeft,
+        left: cards[current].offsetLeft,
         behavior: reducedMotion ? "instant" : "smooth"
       });
     }
@@ -98,7 +98,7 @@ function setupMobileCarousel(cards) {
       let closest = 0;
       let distance = Infinity;
       cards.forEach((card, i) => {
-        const delta = Math.abs(card.offsetLeft - track.offsetLeft - track.scrollLeft);
+        const delta = Math.abs(card.offsetLeft - track.scrollLeft);
         if (delta < distance) {
           distance = delta;
           closest = i;
