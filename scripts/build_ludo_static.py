@@ -235,6 +235,7 @@ def render_article(article):
   <meta name="twitter:image" content="{h(image)}">
   <link rel="icon" href="/assets/ludo-conecta.png">
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/ludo-share.css">
   <script type="application/ld+json">{structured}</script>
   <style>
   body{{margin:0;background:#f6f5fc;color:#15172b;font-family:Inter,Arial,sans-serif}}
@@ -272,10 +273,13 @@ def render_article(article):
       <div class="lc-meta"><span>{byline}</span>{published_date}
         <span>{int(article.get("tempoLeitura") or 5)} min de leitura</span></div>
     </header>
+    <div class="lc-share" data-ludo-share aria-label="Compartilhar esta matéria"></div>
     {figure}
     <div class="lc-content">{body}</div>
+    <div class="lc-share" data-ludo-share aria-label="Compartilhar esta matéria"></div>
   </article>
 </main>
+<script src="/js/ludo-share.js" defer></script>
 </body>
 </html>
 '''
