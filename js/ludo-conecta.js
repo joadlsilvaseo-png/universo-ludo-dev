@@ -1,6 +1,26 @@
 import { db } from "./firebase-config.js";
 import { collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
 
+const publicSlug = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+async function publishedPaths() {
+  try {
+    const response = await fetch("/content/ludo-conecta/manifest.json", { cache: "no-store" });
+    if (!response.ok) return {};
+    const manifest = await response.json();
+    return manifest?.articles && typeof manifest.articles === "object" ? manifest.articles : {};
+  } catch {
+    return {};
+  }
+}
+function articleUrl(article, paths) {
+  const slug = String(article.slug || "");
+  const path = paths[slug];
+  return publicSlug.test(slug) && path === "/ludo-conecta/materias/" + slug + "/"
+    ? path
+    : "materia.html?id=" + encodeURIComponent(article.id);
+}
+
+
 function escapeText(s = "") {
   return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;")
     .replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
@@ -385,6 +405,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const featured = new Set([mainArticle, ...secondary]);
       const ordered = [mainArticle, ...secondary, ...articles.filter((a) => !featured.has(a))]
         .filter(Boolean);
+      const paths = await publishedPaths();
       const posts = ordered.map((article) => ({
         title: escapeText(article.titulo),
         summary: escapeText(article.resumo),
@@ -393,7 +414,7 @@ document.addEventListener("DOMContentLoaded", () => {
         image: /^\/assets\/materias\/[a-f0-9-]{36}\.(png|jpg|webp)$/i.test(article.imagemCapaUrl || "")
           ? article.imagemCapaUrl : "../assets/ludo-conecta.png",
         imageAlt: escapeText(article.imagemCapaAlt || article.titulo),
-        url: "materia.html?id=" + encodeURIComponent(article.id),
+        url: articleUrl(article, paths),
         featured: featured.has(article),
       }));
 
