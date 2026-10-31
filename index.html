@@ -43,6 +43,7 @@
 
   <!-- CSS -->
   <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="./css/ludo-home.css">
 </head>
 
 
@@ -366,6 +367,34 @@
 
       </div>
 
+    </section>
+
+    <!-- =====================================================
+      LUDO CONECTA - ÚLTIMAS MATÉRIAS PUBLICADAS
+    ====================================================== -->
+    <section class="home-conecta" id="ludo-conecta" aria-labelledby="home-conecta-title" hidden>
+      <div class="container">
+        <div class="home-conecta__header">
+          <div class="home-conecta__intro">
+            <span class="section-tag">Novidades do Universo</span>
+            <div class="home-conecta__identity">
+              <img class="home-conecta__logo" src="./assets/ludo-conecta.png" alt="" width="62" height="62" loading="lazy">
+              <h2 id="home-conecta-title">Ludo <strong>Conecta.</strong></h2>
+            </div>
+            <p>Notícias, guias e novidades sobre Pokémon TCG, Board Games e a comunidade que vive os jogos.</p>
+          </div>
+          <a class="home-conecta__all" href="./ludo-conecta/">
+            Ver todas as matérias <span aria-hidden="true">→</span>
+          </a>
+        </div>
+
+        <div class="home-conecta__grid" id="home-conecta-grid" aria-live="polite"></div>
+        <div class="home-conecta__controls" id="home-conecta-controls" aria-label="Navegar pelas matérias" hidden>
+          <button class="home-conecta__arrow" id="home-conecta-prev" type="button" aria-label="Matéria anterior">‹</button>
+          <span class="home-conecta__pagination" id="home-conecta-pagination" aria-live="polite"></span>
+          <button class="home-conecta__arrow" id="home-conecta-next" type="button" aria-label="Próxima matéria">›</button>
+        </div>
+      </div>
     </section>
 
     <!-- =====================================================
@@ -1289,6 +1318,7 @@
 
   <!-- JS -->
   <script src="./js/script.js" defer></script>
+  <script type="module" src="./js/ludo-home.js"></script>
 
 </body>
 
