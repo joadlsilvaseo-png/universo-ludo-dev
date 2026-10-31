@@ -1,3 +1,11 @@
+import { db } from "./firebase-config.js";
+import { collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
+
+function escapeText(s = "") {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   function setupStaticCarousel({
     root,
@@ -365,15 +373,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function loadPosts() {
     try {
-      const response = await fetch("../content/ludo-conecta/posts.json", {
-        cache: "no-store",
-      });
-
-      if (!response.ok) {
-        return;
-      }
-
-      const posts = await response.json();
+      const snapshot = await getDocs(
+        query(collection(db, "materias"), where("status", "==", "publicado"))
+      );
+      const articles = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))
+        .sort((a, b) => String(b.dataPublicacao || b.atualizadoEm || "")
+          .localeCompare(String(a.dataPublicacao || a.atualizadoEm || "")));
+      const mainArticle = articles.find((a) => a.destaquePrincipal) || articles[0];
+      const secondary = articles
+        .filter((a) => a !== mainArticle && a.destaqueSecundario).slice(0, 3);
+      const featured = new Set([mainArticle, ...secondary]);
+      const ordered = [mainArticle, ...secondary, ...articles.filter((a) => !featured.has(a))]
+        .filter(Boolean);
+      const posts = ordered.map((article) => ({
+        title: escapeText(article.titulo),
+        summary: escapeText(article.resumo),
+        category: escapeText(article.categoriaNome || "Ludo Conecta"),
+        date: String(article.dataPublicacao || article.atualizadoEm || "").slice(0, 10),
+        image: /^\\/assets\\/materias\\/[a-f0-9-]{36}\\.(png|jpg|webp)$/i.test(article.imagemCapaUrl || "")
+          ? article.imagemCapaUrl : "../assets/ludo-conecta.png",
+        imageAlt: escapeText(article.imagemCapaAlt || article.titulo),
+        url: "materia.html?id=" + encodeURIComponent(article.id),
+        featured: featured.has(article),
+      }));
 
       if (!Array.isArray(posts) || posts.length === 0) {
         return;
