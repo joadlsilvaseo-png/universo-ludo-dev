@@ -34,21 +34,85 @@ function safeHtml(input) {
   }
   return [...parsed.body.childNodes].map(nodeHtml).join("");
 }
+const SITE = "https://universoludo.com.br";
+const fallbackImage = SITE + "/assets/ludo-conecta.png";
+
+function setMeta(selector, value) {
+  const element = document.querySelector(selector);
+  if (element) element.setAttribute("content", String(value || ""));
+}
+
+function setRobotsNoindex() {
+  setMeta('meta[name="robots"]', "noindex, follow");
+}
+
+function updateArticleSeo(article, id) {
+  const url = SITE + "/ludo-conecta/materia.html?id=" + encodeURIComponent(id);
+  const title = (article.titulo || "Matéria") + " | Ludo Conecta";
+  const description = article.metaDescription || article.resumo || "";
+  const image = IMG.test(article.imagemCapaUrl || "")
+    ? SITE + article.imagemCapaUrl : fallbackImage;
+
+  document.title = title;
+  setMeta('meta[name="description"]', description);
+  setMeta('meta[property="og:title"]', title);
+  setMeta('meta[property="og:description"]', description);
+  setMeta('meta[property="og:url"]', url);
+  setMeta('meta[property="og:image"]', image);
+  setMeta('meta[name="twitter:title"]', title);
+  setMeta('meta[name="twitter:description"]', description);
+  setMeta('meta[name="twitter:image"]', image);
+
+  let canonical = document.querySelector('link[rel="canonical"]');
+  if (!canonical) {
+    canonical = document.createElement("link");
+    canonical.rel = "canonical";
+    document.head.appendChild(canonical);
+  }
+  canonical.href = url;
+
+  const published = String(article.dataPublicacao || article.atualizadoEm || "").slice(0, 10);
+  const modified = String(article.atualizadoEm || article.dataPublicacao || "").slice(0, 10);
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: article.titulo || "",
+    description,
+    mainEntityOfPage: { "@type": "WebPage", "@id": url },
+    url,
+    image: [image],
+    author: { "@type": "Organization", name: article.autorNome || "Equipe Ludo Conecta" },
+    publisher: {
+      "@type": "Organization",
+      name: "Universo Ludo",
+      logo: { "@type": "ImageObject", url: SITE + "/assets/logo-universo-ludo.png" }
+    },
+    ...(published ? { datePublished: published } : {}),
+    ...(modified ? { dateModified: modified } : {}),
+    inLanguage: "pt-BR"
+  };
+  const script = document.createElement("script");
+  script.type = "application/ld+json";
+  script.textContent = JSON.stringify(jsonLd).replace(/</g, "\\u003c");
+  document.head.appendChild(script);
+}
+
 async function init() {
   const id = new URLSearchParams(location.search).get("id");
   if (!id || !/^[a-f0-9-]{36}$/i.test(id)) {
+    setRobotsNoindex();
     status.textContent = "Matéria não encontrada.";
     return;
   }
   try {
     const snap = await getDoc(doc(db, "materias", id));
     if (!snap.exists() || snap.data().status !== "publicado") {
+      setRobotsNoindex();
       status.textContent = "Matéria indisponível ou não publicada.";
       return;
     }
     const a = snap.data();
-    document.title = a.titulo + " | Ludo Conecta";
-    document.querySelector('meta[name="description"]').content = a.metaDescription || a.resumo || "";
+    updateArticleSeo(a, id);
     $("#article-category").textContent = a.categoriaNome || "Ludo Conecta";
     $("#article-title").textContent = a.titulo;
     if (a.subtitulo) { $("#article-subtitle").textContent = a.subtitulo; $("#article-subtitle").hidden = false; }
@@ -71,6 +135,7 @@ async function init() {
     $("#article-content").innerHTML = safeHtml(a.conteudoHtml);
     status.hidden = true; $("#article").hidden = false;
   } catch (err) {
+    setRobotsNoindex();
     console.error("Ludo Conecta: não foi possível ler a matéria.", err);
     status.textContent = "Não foi possível carregar a matéria agora.";
   }
