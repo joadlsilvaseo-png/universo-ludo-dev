@@ -390,7 +390,7 @@ document.addEventListener("DOMContentLoaded", () => {
         summary: escapeText(article.resumo),
         category: escapeText(article.categoriaNome || "Ludo Conecta"),
         date: String(article.dataPublicacao || article.atualizadoEm || "").slice(0, 10),
-        image: /^\\/assets\\/materias\\/[a-f0-9-]{36}\\.(png|jpg|webp)$/i.test(article.imagemCapaUrl || "")
+        image: /^\/assets\/materias\/[a-f0-9-]{36}\.(png|jpg|webp)$/i.test(article.imagemCapaUrl || "")
           ? article.imagemCapaUrl : "../assets/ludo-conecta.png",
         imageAlt: escapeText(article.imagemCapaAlt || article.titulo),
         url: "materia.html?id=" + encodeURIComponent(article.id),
@@ -401,8 +401,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      // Rascunhos editoriais permanecem visiveis na diagramação,
-      // mas nao apontam para artigos inexistentes.
+      // Exibe somente matérias reais publicadas no Firestore.
       const visiblePosts = posts;
       renderFeatured(visiblePosts);
 
