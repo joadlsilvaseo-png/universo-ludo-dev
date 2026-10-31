@@ -46,5 +46,5 @@ jobs:
             echo "Nenhuma mudança nas matérias publicadas."
             exit 0
           fi
-          git commit -m "seo: sincroniza HTML e sitemap das materias publicadas [skip ci]"
+          git commit -m "seo: sincroniza HTML e sitemap das materias publicadas"
           git push origin HEAD:main
