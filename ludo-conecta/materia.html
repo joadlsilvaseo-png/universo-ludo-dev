@@ -19,6 +19,7 @@
   <meta name="twitter:image" content="https://universoludo.com.br/assets/ludo-conecta.png">
   <link rel="icon" href="../assets/ludo-conecta.png">
   <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/ludo-share.css">
   <style>
   body{margin:0;background:#f6f5fc;color:#15172b;font-family:Inter,Arial,sans-serif}
   .lc-top{background:#fff;border-bottom:1px solid #e5e7eb;padding:16px 24px}
@@ -60,13 +61,16 @@
         <p class="lc-subtitle" id="article-subtitle" hidden></p>
         <div class="lc-meta"><span id="article-author"></span><time id="article-date"></time><span id="article-reading-time"></span></div>
       </header>
+      <div class="lc-share" data-ludo-share aria-label="Compartilhar esta matéria"></div>
       <figure class="lc-cover" id="article-cover" hidden>
         <img id="article-cover-image" alt="">
         <figcaption id="article-caption" hidden></figcaption>
       </figure>
       <div class="lc-content" id="article-content"></div>
+      <div class="lc-share" data-ludo-share aria-label="Compartilhar esta matéria"></div>
     </article>
   </main>
   <script type="module" src="../js/ludo-materia.js"></script>
+  <script src="../js/ludo-share.js" defer></script>
 </body>
 </html>
