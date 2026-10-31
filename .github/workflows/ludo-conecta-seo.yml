@@ -1,0 +1,50 @@
+name: Publicar matérias SEO do Ludo Conecta
+
+on:
+  schedule:
+    # Consultas periódicas: evita tokens do GitHub ou privilégios administrativos no CMS.
+    - cron: '7,22,37,52 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/build_ludo_static.py'
+      - '.github/workflows/ludo-conecta-seo.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ludo-conecta-seo-main
+  cancel-in-progress: false
+
+jobs:
+  gerar-materias:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          ref: main
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Gerar HTML e sitemap de publicações
+        run: python scripts/build_ludo_static.py
+
+      - name: Salvar alterações automaticamente
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add sitemap.xml content/ludo-conecta/manifest.json ludo-conecta/materias/
+          if git diff --cached --quiet; then
+            echo "Nenhuma mudança nas matérias publicadas."
+            exit 0
+          fi
+          git commit -m "seo: sincroniza HTML e sitemap das materias publicadas [skip ci]"
+          git push origin HEAD:main
