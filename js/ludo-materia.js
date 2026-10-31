@@ -37,6 +37,23 @@ function safeHtml(input) {
 const SITE = "https://universoludo.com.br";
 const fallbackImage = SITE + "/assets/ludo-conecta.png";
 
+const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+async function publishedStaticPath(article) {
+  const slug = String(article.slug || "");
+  if (!SLUG.test(slug)) return "";
+  try {
+    const response = await fetch("/content/ludo-conecta/manifest.json", { cache: "no-store" });
+    if (!response.ok) return "";
+    const manifest = await response.json();
+    const path = "/ludo-conecta/materias/" + slug + "/";
+    return manifest?.articles?.[slug] === path ? path : "";
+  } catch {
+    return "";
+  }
+}
+
+
 function setMeta(selector, value) {
   const element = document.querySelector(selector);
   if (element) element.setAttribute("content", String(value || ""));
@@ -99,7 +116,7 @@ function updateArticleSeo(article, id) {
 
 async function init() {
   const id = new URLSearchParams(location.search).get("id");
-  if (!id || !/^[a-f0-9-]{36}$/i.test(id)) {
+  if (!id || (!/^[a-f0-9-]{36}$/i.test(id) && !SLUG.test(id))) {
     setRobotsNoindex();
     status.textContent = "Matéria não encontrada.";
     return;
@@ -112,6 +129,12 @@ async function init() {
       return;
     }
     const a = snap.data();
+    // Links antigos do CMS/Google levam à página HTML estática quando ela já existe.
+    const publicPath = await publishedStaticPath(a);
+    if (publicPath) {
+      window.location.replace(publicPath);
+      return;
+    }
     updateArticleSeo(a, id);
     $("#article-category").textContent = a.categoriaNome || "Ludo Conecta";
     $("#article-title").textContent = a.titulo;
