@@ -10,6 +10,28 @@ const pagination = document.querySelector("#home-conecta-pagination");
 const imagePattern = /^\/assets\/materias\/[a-f0-9-]{36}\.(png|jpg|webp)$/i;
 const idPattern = /^[a-f0-9-]{36}$/i;
 
+const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+async function publishedPaths() {
+  try {
+    const response = await fetch("/content/ludo-conecta/manifest.json", { cache: "no-store" });
+    if (!response.ok) return {};
+    const manifest = await response.json();
+    return manifest?.articles && typeof manifest.articles === "object" ? manifest.articles : {};
+  } catch {
+    return {};
+  }
+}
+
+function articleUrl(article, paths) {
+  const slug = String(article.slug || "");
+  const path = paths[slug];
+  return slugPattern.test(slug) && path === "/ludo-conecta/materias/" + slug + "/"
+    ? path
+    : "./ludo-conecta/materia.html?id=" + encodeURIComponent(article.id);
+}
+
+
 function element(tag, className, value) {
   const node = document.createElement(tag);
   if (className) node.className = className;
@@ -30,10 +52,10 @@ function displayDate(value) {
   }).format(date);
 }
 
-function buildCard(article, index) {
+function buildCard(article, index, paths) {
   const card = element("article", "home-conecta-card" + (index === 0 ? " is-lead" : ""));
   const link = element("a", "home-conecta-card__link");
-  link.href = "./ludo-conecta/materia.html?id=" + encodeURIComponent(article.id);
+  link.href = articleUrl(article, paths);
   link.setAttribute("aria-label", "Ler matéria: " + article.titulo);
 
   const image = element("img", "home-conecta-card__image");
@@ -130,7 +152,8 @@ async function loadLatest() {
 
     if (articles.length === 0) return;
 
-    const cards = articles.map(buildCard);
+    const paths = await publishedPaths();
+    const cards = articles.map((article, index) => buildCard(article, index, paths));
     track.replaceChildren(...cards);
     track.classList.toggle("is-single", cards.length === 1);
     track.classList.toggle("is-pair", cards.length === 2);
