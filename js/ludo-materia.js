@@ -7,8 +7,40 @@ const status = $("#article-status");
 const esc = (s = "") => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;")
   .replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 
+function markdownFragment(fragment) {
+  const output = [];
+  let paragraph = [], bullets = [];
+  const inline = (s) => esc(String(s).trim()).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  const flushParagraph = () => { if (paragraph.length) { output.push("<p>" + inline(paragraph.join(" ")) + "</p>"); paragraph = []; } };
+  const flushList = () => { if (bullets.length) { output.push("<ul>" + bullets.map((x) => "<li>" + inline(x) + "</li>").join("") + "</ul>"); bullets = []; } };
+  for (const raw of fragment.replace(/\r\n?/g,"\n").split("\n")) {
+    const line=raw.trim();
+    if (!line) { flushParagraph(); flushList(); continue; }
+    const heading = line.match(/^(#{2,3})\s+(.+)$/);
+    const bullet = line.match(/^[-*]\s+(.+)$/);
+    if (heading) {
+      flushParagraph(); flushList();
+      const tag = heading[1].length === 2 ? "h2" : "h3";
+      output.push("<" + tag + ">" + inline(heading[2]) + "</" + tag + ">");
+    } else if (bullet) {
+      flushParagraph(); bullets.push(bullet[1]);
+    } else {
+      flushList(); paragraph.push(line);
+    }
+  }
+  flushParagraph(); flushList();
+  return output.join("");
+}
+
+function normalizeArticleMarkup(source) {
+  const raw=String(source || "");
+  if (!/^[ \t]*#{2,3}[ \t]+\S/m.test(raw)) return raw;
+  const keep=/(<figure\b[^>]*>[\s\S]*?<\/figure>|<p\b[^>]*>[\s\S]*?<\/p>|<h[23]\b[^>]*>[\s\S]*?<\/h[23]>|<ul\b[^>]*>[\s\S]*?<\/ul>|<ol\b[^>]*>[\s\S]*?<\/ol>|<blockquote\b[^>]*>[\s\S]*?<\/blockquote>)/gi;
+  return raw.split(keep).map((part,i)=>i%2 ? part : markdownFragment(part)).join("");
+}
+
 function safeHtml(input) {
-  const parsed = new DOMParser().parseFromString(String(input || ""), "text/html");
+  const parsed = new DOMParser().parseFromString(normalizeArticleMarkup(input), "text/html");
   const allowed = new Set(["p", "h2", "h3", "b", "i", "strong", "em",
     "blockquote", "ul", "ol", "li", "figure", "figcaption", "br"]);
   const blocked = new Set(["script", "style", "iframe", "object", "svg", "form", "template"]);
