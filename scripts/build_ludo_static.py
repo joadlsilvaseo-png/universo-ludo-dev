@@ -14,6 +14,18 @@ import urllib.request
 from datetime import date
 from html.parser import HTMLParser
 from pathlib import Path
+
+# Mesma propriedade GA4 utilizada na página inicial e no blog.
+GA4_TAG = """<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-17YM2F8SW3"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-17YM2F8SW3');
+</script>
+"""
+
 from urllib.parse import urlparse
 import xml.etree.ElementTree as ET
 
@@ -244,6 +256,7 @@ def render_article(article):
     return f'''<!doctype html>
 <html lang="pt-BR">
 <head>
+{GA4_TAG}
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="index, follow, max-image-preview:large">
@@ -426,6 +439,7 @@ def render_article(article):
     return f'''<!doctype html>
 <html lang="pt-BR">
 <head>
+{GA4_TAG}
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="index, follow, max-image-preview:large">
@@ -637,6 +651,7 @@ def render_article(article):
     return f'''<!doctype html>
 <html lang="pt-BR">
 <head>
+{GA4_TAG}
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="index, follow, max-image-preview:large">
