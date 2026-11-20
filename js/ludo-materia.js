@@ -66,6 +66,19 @@ function safeHtml(input) {
   }
   return [...parsed.body.childNodes].map(nodeHtml).join("");
 }
+// Páginas legadas sem HTML estático também precisam enviar visualizações ao GA4.
+// Executado apenas quando não há redirecionamento para a página estática.
+function trackDynamicArticleView() {
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
+  window.gtag("js", new Date());
+  window.gtag("config", "G-17YM2F8SW3");
+  const script = document.createElement("script");
+  script.async = true;
+  script.src = "https://www.googletagmanager.com/gtag/js?id=G-17YM2F8SW3";
+  document.head.appendChild(script);
+}
+
 const SITE = "https://universoludo.com.br";
 const fallbackImage = SITE + "/assets/ludo-conecta.png";
 
@@ -189,6 +202,7 @@ async function init() {
     }
     $("#article-content").innerHTML = safeHtml(a.conteudoHtml);
     status.hidden = true; $("#article").hidden = false;
+    trackDynamicArticleView();
   } catch (err) {
     setRobotsNoindex();
     console.error("Ludo Conecta: não foi possível ler a matéria.", err);
