@@ -1,4 +1,4 @@
-
+import { loadPublishedArticles } from "./ludo-publications.js";
 const publicSlug = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 function escapeText(s = "") {
   return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;")
@@ -372,23 +372,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function loadPosts() {
     try {
-      const response = await fetch("/content/ludo-conecta/posts.json", { cache: "no-store" });
-      if (!response.ok) throw new Error("Catálogo não encontrado");
-      const catalog = await response.json();
-      const posts = (Array.isArray(catalog) ? catalog : [])
-        .filter((p) => publicSlug.test(p.slug || "") && typeof p.title === "string")
-        .map((p) => ({
-          title: escapeText(p.title),
-          summary: escapeText(p.summary || ""),
-          category: escapeText(p.category || "Ludo Conecta"),
-          date: String(p.date || "").slice(0, 10),
-          image: /^\/assets\/[a-zA-Z0-9_./-]+\.(png|jpg|jpeg|webp)$/i.test(p.image || "")
-            ? p.image : "../assets/ludo-conecta.png",
-          imageAlt: escapeText(p.imageAlt || p.title),
-          url: "/ludo-conecta/materias/" + p.slug + "/",
-          featured: Boolean(p.featured)
-        }));
-      // Mantém os destaques definidos no CMS e exibe artigos comuns abaixo.
+      const publications = await loadPublishedArticles();
+      const posts = publications.map((p) => ({
+        title: escapeText(p.title),
+        summary: escapeText(p.summary || ""),
+        category: escapeText(p.category || "Ludo Conecta"),
+        date: String(p.date || "").slice(0, 10),
+        image: p.image,
+        imageAlt: escapeText(p.imageAlt || p.title),
+        url: p.url,
+        featured: Boolean(p.featured),
+        featuredPrimary: Boolean(p.featuredPrimary)
+      }));
+      const primaryIndex = posts.findIndex((p) => p.featuredPrimary);
+      if (primaryIndex > 0) posts.unshift(posts.splice(primaryIndex, 1)[0]);
       if (posts.length && !posts.some((p) => p.featured)) posts[0].featured = true;
 
       if (!Array.isArray(posts) || posts.length === 0) {
