@@ -1,4 +1,4 @@
-
+import { loadPublishedArticles } from "./ludo-publications.js";
 const section = document.querySelector("#ludo-conecta");
 const track = document.querySelector("#home-conecta-grid");
 const controls = document.querySelector("#home-conecta-controls");
@@ -34,10 +34,10 @@ function displayDate(value) {
   }).format(date);
 }
 
-function buildCard(article, index, paths) {
+function buildCard(article, index) {
   const card = element("article", "home-conecta-card" + (index === 0 ? " is-lead" : ""));
   const link = element("a", "home-conecta-card__link");
-  link.href = articleUrl(article, paths);
+  link.href = article.url || articleUrl(article);
   link.setAttribute("aria-label", "Ler matéria: " + article.titulo);
 
   const image = element("img", "home-conecta-card__image");
@@ -117,29 +117,21 @@ function setupMobileCarousel(cards) {
 async function loadLatest() {
   if (!section || !track) return;
   try {
-    const response = await fetch("/content/ludo-conecta/posts.json", { cache: "no-store" });
-    if (!response.ok) throw new Error("Catálogo indisponível: " + response.status);
-    const allPosts = await response.json();
-    const articles = (Array.isArray(allPosts) ? allPosts : [])
-      .filter(p => typeof p.title === "string" && slugPattern.test(p.slug || ""))
-      .sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")))
-      .slice(0, 3)
-      .map(p => ({
-        id: p.slug, slug: p.slug, titulo: p.title, resumo: p.summary,
-        categoriaNome: p.category, dataPublicacao: p.date,
-        imagemCapaUrl: p.image, imagemCapaAlt: p.imageAlt,
-        url: p.url
-      }));
-
-    if (!articles.length) return;
-    const cards = articles.map((article, index) => buildCard(article, index, {}));
+    const published = await loadPublishedArticles();
+    const articles = published.slice(0, 3).map((post) => ({
+      id: post.id, slug: post.slug, titulo: post.title, resumo: post.summary,
+      categoriaNome: post.category, dataPublicacao: post.date,
+      imagemCapaUrl: post.image, imagemCapaAlt: post.imageAlt, url: post.url
+    }));
+    if (articles.length === 0) return;
+    const cards = articles.map((article, index) => buildCard(article, index));
     track.replaceChildren(...cards);
     track.classList.toggle("is-single", cards.length === 1);
     track.classList.toggle("is-pair", cards.length === 2);
     section.hidden = false;
     setupMobileCarousel(cards);
   } catch (error) {
-    console.warn("Ludo Conecta: não foi possível carregar as matérias recentes.", error);
+    console.warn("Ludo Conecta: não foi possível carregar as matérias.", error);
   }
 }
 
