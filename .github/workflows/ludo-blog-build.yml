@@ -1,0 +1,59 @@
+name: Ludo Conecta - publicar artigos do Pages CMS
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'content/ludo-conecta/articles/**'
+      - 'templates/ludo-article.html.tpl'
+      - 'scripts/build_ludo_blog.py'
+      - '.github/workflows/ludo-blog-build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ludo-pages-cms-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  gerar-blog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validar sintaxe do gerador
+        run: python -m py_compile scripts/build_ludo_blog.py
+      - name: Gerar páginas, listagem e sitemap
+        run: python scripts/build_ludo_blog.py
+      - name: Conferir páginas geradas
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = json.loads(Path("content/ludo-conecta/posts.json").read_text(encoding="utf-8"))
+          for a in p:
+              html = Path("ludo-conecta/materias") / a["slug"] / "index.html"
+              assert html.exists(), f"Página ausente: {html}"
+              assert a["url"] in html.read_text(encoding="utf-8"), f"Canonical ausente: {html}"
+          print(f"{len(p)} páginas verificadas.")
+          PY
+      - name: Salvar páginas atualizadas
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A -- ludo-conecta/materias/ content/ludo-conecta/posts.json content/ludo-conecta/manifest.json sitemap.xml
+          if git diff --cached --quiet; then
+            echo "Nenhuma mudança de publicação."
+            exit 0
+          fi
+          git commit -m "content(ludo): gerar paginas a partir do Pages CMS"
+          git push origin HEAD:main
