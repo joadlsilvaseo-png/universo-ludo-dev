@@ -109,7 +109,10 @@ def build():
     articles.sort(key=lambda p: (p["datePublished"], p["slug"]), reverse=True)
 
     # Remove somente páginas geradas anteriormente que foram despublicadas.
-    previous_manifest = ROOT / "content/ludo-conecta/manifest.json"
+    previous_manifest = ROOT / "content/ludo-conecta/pages-manifest.json"
+    previously_owned = {}
+    if previous_manifest.exists():
+        previously_owned = json.loads(previous_manifest.read_text(encoding="utf-8")).get("articles") or {}
     if previous_manifest.exists():
         old = json.loads(previous_manifest.read_text(encoding="utf-8"))
         current_slugs = {p["slug"] for p in articles}
@@ -119,6 +122,14 @@ def build():
                 if old_page.exists():
                     old_page.unlink()
                     print("Despublicado:", old_slug)
+
+    # Não sobrescrever páginas já pertencentes ao CMS personalizado.
+    legacy_manifest = ROOT / "content/ludo-conecta/manifest.json"
+    if legacy_manifest.exists():
+        owned = json.loads(legacy_manifest.read_text(encoding="utf-8")).get("articles") or {}
+        for post in articles:
+            if post["slug"] in owned:
+                raise ValueError("Slug pertence ao CMS antigo: " + post["slug"])
 
     for post in articles:
         slug = post["slug"]
@@ -172,15 +183,16 @@ def build():
     } for p in ordered]
     write_changed(ROOT / "content/ludo-conecta/posts.json", json.dumps(posts, ensure_ascii=False, indent=2) + "\n")
     manifest = {"schemaVersion": 1, "articles": {p["slug"]: p["url"] for p in posts}}
-    write_changed(ROOT / "content/ludo-conecta/manifest.json", json.dumps(manifest, ensure_ascii=False, indent=2) + "\n")
+    write_changed(ROOT / "content/ludo-conecta/pages-manifest.json", json.dumps(manifest, ensure_ascii=False, indent=2) + "\n")
 
     sitemap = ROOT / "sitemap.xml"
     ET.register_namespace("", NS)
     tree = ET.parse(sitemap)
     root = tree.getroot()
+    # Atualiza só URLs do Pages CMS. URLs legadas não podem ser removidas.
     for node in list(root):
         loc = node.findtext("{" + NS + "}loc") or ""
-        if loc.startswith(DOMAIN + "/ludo-conecta/materias/"):
+        if loc in {DOMAIN + v for v in previously_owned.values()}:
             root.remove(node)
     for p in articles:
         item = ET.SubElement(root, "{" + NS + "}url")
