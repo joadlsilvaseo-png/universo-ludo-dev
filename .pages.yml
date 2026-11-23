@@ -1,0 +1,101 @@
+# Pages CMS — Ludo Conecta / Universo Ludo
+# https://app.pagescms.org/ — entrar com GitHub joadlsilvaseo-png
+media:
+  input: assets
+  output: /assets
+  categories: [image]
+  rename: safe
+
+content:
+  - name: artigos
+    label: Artigos do Ludo Conecta
+    type: collection
+    path: content/ludo-conecta/articles
+    format: json
+    filename:
+      template: "{fields.slug}.json"
+      field: create
+    view:
+      primary: title
+      sort: title
+      order: asc
+    fields:
+      - name: title
+        label: Título do artigo
+        type: string
+        required: true
+      - name: slug
+        label: Endereço amigável (não mudar após publicação)
+        type: string
+        required: true
+        pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+      - name: subtitle
+        label: Subtítulo
+        type: text
+      - name: category
+        label: Categoria
+        type: string
+        required: true
+      - name: tags
+        label: Tags
+        type: string
+        list: true
+      - name: summary
+        label: Resumo / chamada
+        type: text
+        required: true
+      - name: seoTitle
+        label: Título SEO
+        type: string
+        required: true
+      - name: seoDescription
+        label: Meta description
+        type: text
+        required: true
+      - name: cover
+        label: Imagem de capa
+        type: image
+        required: true
+        options:
+          path: assets/materias
+      - name: coverAlt
+        label: Texto ALT da capa
+        type: string
+        required: true
+      - name: coverCaption
+        label: Legenda da capa
+        type: text
+      - name: author
+        label: Autor
+        type: string
+        required: true
+      - name: datePublished
+        label: Data de publicação (AAAA-MM-DD)
+        type: string
+        required: true
+        pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+      - name: dateModified
+        label: Última atualização (AAAA-MM-DD)
+        type: string
+        pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+      - name: readingMinutes
+        label: Tempo de leitura em minutos
+        type: number
+      - name: featured
+        label: Destacar no blog
+        type: boolean
+        description: Somente matérias publicadas aparecem no site.
+      - name: published
+        label: Aprovado para publicação
+        type: boolean
+        description: Ative após revisar texto, fotos e SEO.
+      - name: body
+        label: Texto completo
+        type: rich-text
+        required: true
+        options:
+          format: html
+          switcher: true
+          path: assets/materias
+          rename: safe
+          extensions: [jpg, jpeg, png, webp]
