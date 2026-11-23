@@ -1,5 +1,3 @@
-import { db } from "./firebase-config.js";
-import { collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
 
 const section = document.querySelector("#ludo-conecta");
 const track = document.querySelector("#home-conecta-grid");
@@ -7,30 +5,14 @@ const controls = document.querySelector("#home-conecta-controls");
 const prev = document.querySelector("#home-conecta-prev");
 const next = document.querySelector("#home-conecta-next");
 const pagination = document.querySelector("#home-conecta-pagination");
-const imagePattern = /^\/assets\/materias\/[a-f0-9-]{36}\.(png|jpg|webp)$/i;
-const idPattern = /^[a-f0-9-]{36}$/i;
+const imagePattern = /^\/assets\/[a-zA-Z0-9_./-]+\.(png|jpg|jpeg|webp)$/i;
 
 const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
-async function publishedPaths() {
-  try {
-    const response = await fetch("/content/ludo-conecta/manifest.json", { cache: "no-store" });
-    if (!response.ok) return {};
-    const manifest = await response.json();
-    return manifest?.articles && typeof manifest.articles === "object" ? manifest.articles : {};
-  } catch {
-    return {};
-  }
-}
-
-function articleUrl(article, paths) {
+function articleUrl(article) {
   const slug = String(article.slug || "");
-  const path = paths[slug];
-  return slugPattern.test(slug) && path === "/ludo-conecta/materias/" + slug + "/"
-    ? path
-    : "./ludo-conecta/materia.html?id=" + encodeURIComponent(article.id);
+  return slugPattern.test(slug) ? "/ludo-conecta/materias/" + slug + "/" : "/ludo-conecta/";
 }
-
 
 function element(tag, className, value) {
   const node = document.createElement(tag);
@@ -135,32 +117,28 @@ function setupMobileCarousel(cards) {
 async function loadLatest() {
   if (!section || !track) return;
   try {
-    // A mesma consulta pública utilizada pelo portal; ordenação local evita índice composto.
-    const result = await getDocs(query(
-      collection(db, "materias"), where("status", "==", "publicado")
-    ));
-    const articles = result.docs
-      .map(docSnap => ({ id: docSnap.id, ...docSnap.data() }))
-      .filter(article => idPattern.test(article.id) && typeof article.titulo === "string" && article.titulo.trim())
-      .sort((a, b) => {
-        const byDate = String(b.dataPublicacao || b.atualizadoEm || "")
-          .localeCompare(String(a.dataPublicacao || a.atualizadoEm || ""));
-        if (byDate) return byDate;
-        return String(b.atualizadoEm || "").localeCompare(String(a.atualizadoEm || ""));
-      })
-      .slice(0, 3);
+    const response = await fetch("/content/ludo-conecta/posts.json", { cache: "no-store" });
+    if (!response.ok) throw new Error("Catálogo indisponível: " + response.status);
+    const allPosts = await response.json();
+    const articles = (Array.isArray(allPosts) ? allPosts : [])
+      .filter(p => typeof p.title === "string" && slugPattern.test(p.slug || ""))
+      .sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")))
+      .slice(0, 3)
+      .map(p => ({
+        id: p.slug, slug: p.slug, titulo: p.title, resumo: p.summary,
+        categoriaNome: p.category, dataPublicacao: p.date,
+        imagemCapaUrl: p.image, imagemCapaAlt: p.imageAlt,
+        url: p.url
+      }));
 
-    if (articles.length === 0) return;
-
-    const paths = await publishedPaths();
-    const cards = articles.map((article, index) => buildCard(article, index, paths));
+    if (!articles.length) return;
+    const cards = articles.map((article, index) => buildCard(article, index, {}));
     track.replaceChildren(...cards);
     track.classList.toggle("is-single", cards.length === 1);
     track.classList.toggle("is-pair", cards.length === 2);
     section.hidden = false;
     setupMobileCarousel(cards);
   } catch (error) {
-    // Falha no Firestore não deve interferir nas demais seções da página principal.
     console.warn("Ludo Conecta: não foi possível carregar as matérias recentes.", error);
   }
 }
