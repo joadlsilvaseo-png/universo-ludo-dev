@@ -108,6 +108,18 @@ def build():
         articles.append(post)
     articles.sort(key=lambda p: (p["datePublished"], p["slug"]), reverse=True)
 
+    # Remove somente páginas geradas anteriormente que foram despublicadas.
+    previous_manifest = ROOT / "content/ludo-conecta/manifest.json"
+    if previous_manifest.exists():
+        old = json.loads(previous_manifest.read_text(encoding="utf-8"))
+        current_slugs = {p["slug"] for p in articles}
+        for old_slug in (old.get("articles") or {}):
+            if SLUG.fullmatch(old_slug) and old_slug not in current_slugs:
+                old_page = ROOT / "ludo-conecta/materias" / old_slug / "index.html"
+                if old_page.exists():
+                    old_page.unlink()
+                    print("Despublicado:", old_slug)
+
     for post in articles:
         slug = post["slug"]
         url = DOMAIN + "/ludo-conecta/materias/" + slug + "/"
