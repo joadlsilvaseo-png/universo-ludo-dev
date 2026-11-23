@@ -1,26 +1,5 @@
-import { db } from "./firebase-config.js";
-import { collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
 
 const publicSlug = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-async function publishedPaths() {
-  try {
-    const response = await fetch("/content/ludo-conecta/manifest.json", { cache: "no-store" });
-    if (!response.ok) return {};
-    const manifest = await response.json();
-    return manifest?.articles && typeof manifest.articles === "object" ? manifest.articles : {};
-  } catch {
-    return {};
-  }
-}
-function articleUrl(article, paths) {
-  const slug = String(article.slug || "");
-  const path = paths[slug];
-  return publicSlug.test(slug) && path === "/ludo-conecta/materias/" + slug + "/"
-    ? path
-    : "materia.html?id=" + encodeURIComponent(article.id);
-}
-
-
 function escapeText(s = "") {
   return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;")
     .replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
@@ -393,36 +372,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function loadPosts() {
     try {
-      const snapshot = await getDocs(
-        query(collection(db, "materias"), where("status", "==", "publicado"))
-      );
-      const articles = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))
-        .sort((a, b) => String(b.dataPublicacao || b.atualizadoEm || "")
-          .localeCompare(String(a.dataPublicacao || a.atualizadoEm || "")));
-      const mainArticle = articles.find((a) => a.destaquePrincipal) || articles[0];
-      const secondary = articles
-        .filter((a) => a !== mainArticle && a.destaqueSecundario).slice(0, 3);
-      const featured = new Set([mainArticle, ...secondary]);
-      const ordered = [mainArticle, ...secondary, ...articles.filter((a) => !featured.has(a))]
-        .filter(Boolean);
-      const paths = await publishedPaths();
-      const posts = ordered.map((article) => ({
-        title: escapeText(article.titulo),
-        summary: escapeText(article.resumo),
-        category: escapeText(article.categoriaNome || "Ludo Conecta"),
-        date: String(article.dataPublicacao || article.atualizadoEm || "").slice(0, 10),
-        image: /^\/assets\/materias\/[a-f0-9-]{36}\.(png|jpg|webp)$/i.test(article.imagemCapaUrl || "")
-          ? article.imagemCapaUrl : "../assets/ludo-conecta.png",
-        imageAlt: escapeText(article.imagemCapaAlt || article.titulo),
-        url: articleUrl(article, paths),
-        featured: featured.has(article),
-      }));
+      const response = await fetch("/content/ludo-conecta/posts.json", { cache: "no-store" });
+      if (!response.ok) throw new Error("Catálogo não encontrado");
+      const catalog = await response.json();
+      const posts = (Array.isArray(catalog) ? catalog : [])
+        .filter((p) => publicSlug.test(p.slug || "") && typeof p.title === "string")
+        .map((p) => ({
+          title: escapeText(p.title),
+          summary: escapeText(p.summary || ""),
+          category: escapeText(p.category || "Ludo Conecta"),
+          date: String(p.date || "").slice(0, 10),
+          image: /^\/assets\/[a-zA-Z0-9_./-]+\.(png|jpg|jpeg|webp)$/i.test(p.image || "")
+            ? p.image : "../assets/ludo-conecta.png",
+          imageAlt: escapeText(p.imageAlt || p.title),
+          url: "/ludo-conecta/materias/" + p.slug + "/",
+          featured: Boolean(p.featured)
+        }));
+      // Mantém os destaques definidos no CMS e exibe artigos comuns abaixo.
+      if (posts.length && !posts.some((p) => p.featured)) posts[0].featured = true;
 
       if (!Array.isArray(posts) || posts.length === 0) {
         return;
       }
 
-      // Exibe somente matérias reais publicadas no Firestore.
+      // Exibe somente artigos aprovados e gerados pelo Pages CMS.
       const visiblePosts = posts;
       renderFeatured(visiblePosts);
 
