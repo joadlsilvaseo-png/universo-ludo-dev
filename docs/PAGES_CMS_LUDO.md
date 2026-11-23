@@ -1,17 +1,43 @@
-# Ludo Conecta — Pages CMS
+# Ludo Conecta — dois editores, fontes independentes
 
-1. Entre em https://app.pagescms.org/ com a conta GitHub **joadlsilvaseo-png**.
-2. Autorize o aplicativo Pages CMS no repositório **joadlsilvaseo-png/universo-ludo-dev** (a autorização é feita pelo proprietário).
-3. Selecione a branch **main** e a coleção **Artigos do Ludo Conecta**.
-4. Edite ou crie matérias, com título, subtítulo, categoria, tags, resumo, SEO, autor, capa, ALT, legenda, texto e imagens internas.
-5. Para manter em rascunho, deixe **Aprovado para publicação** desligado. Ative quando houver aprovação editorial.
-6. O GitHub Actions **Ludo Conecta - publicar artigos do Pages CMS** gera páginas HTML, listagem e sitemap. Não precisa acessar o CMS personalizado nem o Firebase.
-7. O campo **Destacar no blog** prioriza matérias no portal; somente publicadas aparecem no site.
+O Ludo Conecta mantém **dois caminhos de publicação**, sem migrar matérias nem sincronizar a edição entre os painéis.
 
-**URLs antigas preservadas:** /ludo-conecta/materias/{slug}/. Não altere o slug de matérias publicadas sem implementar redirecionamento 301.
+## 1. CMS personalizado (Firebase)
 
-**Arquivos:** `.pages.yml`, `content/ludo-conecta/articles/*.json`, `templates/ludo-article.html.tpl`, `scripts/build_ludo_blog.py`, `.github/workflows/ludo-blog-build.yml`.
+- Repositório do editor: `joadlsilvaseo-png/cms-ludo-conecta`.
+- Matérias criadas nesse painel permanecem no Firestore, coleção `materias`.
+- Para editar uma matéria que já está no CMS antigo, **use somente o CMS antigo**.
+- O site consulta as matérias com `status = publicado` e preserva links e URLs estáticas existentes.
+- Nenhum dado do Firebase foi apagado.
 
-**Prévia e auditoria local:** `python scripts/build_ludo_blog.py`. O gerador exige campos válidos e remove scripts e atributos potencialmente inseguros do corpo dos artigos. As páginas não dependem de Firebase para apresentar conteúdo.
+## 2. Pages CMS (GitHub)
 
-**CMS antigo:** o repositório `cms-ludo-conecta` é mantido como histórico/backup. Para desativar totalmente a interface em produção, desligue seu projeto de hospedagem separadamente. Evite excluir o Firebase ou seus dados históricos sem backup e confirmação.
+1. Entre em https://app.pagescms.org/ usando a conta `joadlsilvaseo-png`.
+2. Autorize o repositório `joadlsilvaseo-png/universo-ludo-dev` para o Pages CMS, caso ainda não esteja autorizado.
+3. Use a branch `main` e a coleção **Artigos do Ludo Conecta**.
+4. Os artigos novos são salvos em `content/ludo-conecta/articles/*.json`.
+5. Ative **Aprovado para publicação** apenas quando o artigo estiver revisado.
+6. O GitHub Actions **Ludo Conecta - publicar artigos do Pages CMS** gera a página e atualiza `content/ludo-conecta/posts.json`, `pages-manifest.json` e `sitemap.xml`.
+7. Use **Destacar no blog** para priorizar um artigo publicado no portal.
+
+Os novos artigos do Pages CMS têm URLs em `/ludo-conecta/materias/{slug}/`. **Não reutilize o slug de uma matéria que já exista no CMS personalizado**, nem altere o slug de uma URL publicada sem providenciar o redirecionamento correspondente.
+
+## Como o site funciona
+
+- A página inicial da Universo Ludo e o blog Ludo Conecta leem as matérias **publicadas** das duas fontes em separado.
+- As duas listas são reunidas **somente para exibição**, sem copiar, editar ou sincronizar os registros de origem.
+- Em caso de slug repetido, a listagem dá preferência à matéria do CMS personalizado; a melhor prática é nunca repetir um slug.
+- Falha temporária de uma fonte não impede a apresentação dos artigos da outra.
+- As páginas do CMS antigo e suas URLs permanecem intactas. O gerador do Pages CMS é limitado aos artigos criados pelo Pages.
+
+## Arquivos e responsabilidades
+
+- `.pages.yml`: definição do editor Pages CMS.
+- `content/ludo-conecta/articles/*.json`: artigos de responsabilidade do Pages CMS.
+- `content/ludo-conecta/posts.json`: catálogo gerado somente pelo Pages CMS.
+- `content/ludo-conecta/pages-manifest.json`: registro de páginas publicadas pelo Pages CMS.
+- `content/ludo-conecta/manifest.json`: registro antigo, mantido para links do CMS personalizado.
+- `js/ludo-publications.js`: consulta independente às duas fontes e integração somente na listagem.
+- `scripts/build_ludo_blog.py`: gerador do Pages CMS, sem eliminar conteúdo do CMS antigo.
+
+**Não desative a hospedagem, a autenticação ou o Firebase do CMS personalizado** enquanto o editor antigo continuar em uso.
