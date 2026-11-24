@@ -1294,6 +1294,11 @@ IMAGENS DOS CARDS - TCG E COLECIONÁVEIS
   display: none;
 }
 
+.tcg-card__art:focus-visible {
+  outline: 3px solid var(--ludo-purple);
+  outline-offset: 3px;
+}
+
 /* EFEITO SUAVE AO PASSAR O MOUSE */
 
 .tcg-card__art img {
