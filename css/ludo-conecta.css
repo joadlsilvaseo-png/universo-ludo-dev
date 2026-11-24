@@ -500,10 +500,18 @@
   }
   .shop-carousel__track { min-width: 0; }
 
-  /* Setas e indicadores continuam presentes apenas no desktop.
-     A rotação automática e o gesto de deslizar são mantidos pelo JS. */
-  .shop-carousel__arrow,
-  .shop-carousel__dots { display: none; }
+  /* No mobile, somente os indicadores aparecem sobre a própria imagem.
+     Sem controles ou faixa extra abaixo do banner. */
+  .shop-carousel__arrow { display: none; }
+  .shop-carousel__dots {
+    display: flex;
+    bottom: 4px;
+    padding: 4px 7px;
+    gap: 6px;
+    background: rgba(15, 23, 42, .42);
+  }
+  .shop-carousel__dot { width: 7px; height: 7px; }
+  .shop-carousel__dot.is-active { width: 20px; }
 
   /* Aproxima a apresentação do Ludo Conecta do banner no celular. */
   .blog-home {
