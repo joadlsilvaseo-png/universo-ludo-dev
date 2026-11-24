@@ -1288,9 +1288,10 @@ IMAGENS DOS CARDS - TCG E COLECIONÁVEIS
   object-position: center;
 }
 
-/* Colecionáveis tem proporção próxima à do frame, diferente dos outros cards.
-   Reduzir a arte levemente deixa o degradê visível sem cortar a foto. */
-.tcg-card__art--collection img {
+/* Colecionáveis e One Piece: o frame fica visível em volta da arte,
+   com cantos arredondados e imagem inteira, sem cortes. */
+.tcg-card__art--collection img,
+.tcg-card__art--onepiece img {
   inset: 5%;
   width: 90%;
   height: 90%;
