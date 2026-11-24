@@ -278,6 +278,10 @@ HEADER
   margin-left: auto;
 }
 
+.header__mobile-store {
+  display: none;
+}
+
 .header__nav a {
   position: relative;
 
@@ -1178,7 +1182,7 @@ TCG E COLECIONÁVEIS
 }
 
 .tcg-card__art--collection {
-  background: linear-gradient(135deg, #6d28d9, #22d3ee);
+  background: linear-gradient(135deg, #f97316, #ffb347);
 }
 
 /* CONTEÚDO */
@@ -3946,6 +3950,20 @@ MOBILE
     display: none;
   }
 
+  .header__nav.is-open .header__mobile-store {
+    display: block;
+    width: 100%;
+    margin-top: 14px;
+    padding: 14px 18px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--ludo-cyan);
+    color: #0f172a;
+    font-weight: 800;
+    text-align: center;
+    box-shadow: 0 10px 28px rgba(34, 211, 238, 0.18);
+  }
+
   body.menu-open {
     overflow: hidden;
   }
@@ -4182,6 +4200,20 @@ MENU RESPONSIVO - TABLET E MOBILE
 
   .header__nav.is-open a::after {
     display: none;
+  }
+
+  .header__nav.is-open .header__mobile-store {
+    display: block;
+    width: 100%;
+    margin-top: 14px;
+    padding: 14px 18px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--ludo-cyan);
+    color: #0f172a;
+    font-weight: 800;
+    text-align: center;
+    box-shadow: 0 10px 28px rgba(34, 211, 238, 0.18);
   }
 
   body.menu-open {
