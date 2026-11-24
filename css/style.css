@@ -278,10 +278,6 @@ HEADER
   margin-left: auto;
 }
 
-.header__mobile-store {
-  display: none;
-}
-
 .header__nav a {
   position: relative;
 
@@ -3950,20 +3946,6 @@ MOBILE
     display: none;
   }
 
-  .header__nav.is-open .header__mobile-store {
-    display: block;
-    width: 100%;
-    margin-top: 14px;
-    padding: 14px 18px;
-    border: 0;
-    border-radius: 12px;
-    background: var(--ludo-cyan);
-    color: #0f172a;
-    font-weight: 800;
-    text-align: center;
-    box-shadow: 0 10px 28px rgba(34, 211, 238, 0.18);
-  }
-
   body.menu-open {
     overflow: hidden;
   }
@@ -4202,20 +4184,6 @@ MENU RESPONSIVO - TABLET E MOBILE
     display: none;
   }
 
-  .header__nav.is-open .header__mobile-store {
-    display: block;
-    width: 100%;
-    margin-top: 14px;
-    padding: 14px 18px;
-    border: 0;
-    border-radius: 12px;
-    background: var(--ludo-cyan);
-    color: #0f172a;
-    font-weight: 800;
-    text-align: center;
-    box-shadow: 0 10px 28px rgba(34, 211, 238, 0.18);
-  }
-
   body.menu-open {
     overflow: hidden;
   }
@@ -4358,5 +4326,51 @@ MENU RESPONSIVO - TABLET E MOBILE
   .store-card--badge {
     left: 14px;
     bottom: 14px;
+  }
+}
+
+/* CTA Loja Online permanente ao lado do menu hamburguer em telas responsivas.
+   O mesmo botao do desktop usa #loja e a rolagem suave existente. */
+@media (max-width: 1100px) {
+  .header__container {
+    gap: 10px;
+  }
+  .header__logo {
+    min-width: 0;
+    margin-right: auto;
+  }
+  .header .btn--header {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 10px 14px;
+    font-size: .82rem;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+  .header__menu-button {
+    flex: 0 0 44px;
+    margin-left: 0;
+  }
+}
+@media (max-width: 820px) {
+  .header__container { gap: 8px; }
+  .header__logo img {
+    width: clamp(110px, 34vw, 170px);
+    max-width: 100%;
+    max-height: 62px;
+  }
+  .header .btn--header {
+    min-height: 40px;
+    padding-inline: 11px;
+  }
+}
+@media (max-width: 360px) {
+  .header__container { gap: 6px; }
+  .header .btn--header {
+    padding-inline: 9px;
+    font-size: .76rem;
   }
 }
