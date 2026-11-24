@@ -1178,7 +1178,7 @@ TCG E COLECIONÁVEIS
 }
 
 .tcg-card__art--collection {
-  background: linear-gradient(135deg, #5b21b6, #a78bfa 60%, #c4b5fd);
+  background: linear-gradient(135deg, #f97316, #ffb347);
 }
 
 .tcg-card__art--onepiece {
@@ -1286,17 +1286,6 @@ IMAGENS DOS CARDS - TCG E COLECIONÁVEIS
 
   object-fit: contain;
   object-position: center;
-}
-
-/* Colecionáveis e One Piece: o frame fica visível em volta da arte,
-   com cantos arredondados e imagem inteira, sem cortes. */
-.tcg-card__art--collection img,
-.tcg-card__art--onepiece img {
-  inset: 5%;
-  width: 90%;
-  height: 90%;
-  object-fit: contain;
-  border-radius: 12px;
 }
 
 /* REMOVER DECORAÇÕES ANTIGAS */
