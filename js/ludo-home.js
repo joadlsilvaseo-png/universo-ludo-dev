@@ -46,7 +46,7 @@ function buildCard(article, index) {
 
   const image = element("img", "home-conecta-card__image");
   image.src = imagePattern.test(article.imagemCapaUrl || "")
-    ? article.imagemCapaUrl : "./assets/ludo-conecta.png";
+    ? article.imagemCapaUrl : "./assets/ludo-conecta.webp";
   image.alt = article.imagemCapaAlt || article.titulo;
   image.loading = index === 0 ? "eager" : "lazy";
   image.decoding = "async";
@@ -78,7 +78,7 @@ function buildCard(article, index) {
 
 function imageFor(article) {
   return imagePattern.test(article.imagemCapaUrl || "")
-    ? article.imagemCapaUrl : "./assets/ludo-conecta.png";
+    ? article.imagemCapaUrl : "./assets/ludo-conecta.webp";
 }
 
 function linkTo(article, className, label) {
