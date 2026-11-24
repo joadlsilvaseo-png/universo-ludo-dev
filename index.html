@@ -71,7 +71,6 @@
         <a href="#eventos">Eventos</a>
         <a href="ludo-conecta/">Ludo Conecta</a>
         <a href="#sobre">Quem Somos</a>
-        <a href="#loja" class="header__mobile-store">Loja Online</a>
 
       </nav>
 
@@ -377,10 +376,32 @@
         </div>
 
         <div class="home-conecta__grid" id="home-conecta-grid" aria-live="polite"></div>
-        <div class="home-conecta__controls" id="home-conecta-controls" aria-label="Navegar pelas matérias" hidden>
-          <button class="home-conecta__arrow" id="home-conecta-prev" type="button" aria-label="Matéria anterior">‹</button>
-          <span class="home-conecta__pagination" id="home-conecta-pagination" aria-live="polite"></span>
-          <button class="home-conecta__arrow" id="home-conecta-next" type="button" aria-label="Próxima matéria">›</button>
+
+        <!-- Showcase mobile independente, inspirado no blog Isabele Mariana Nails.
+             O grid acima continua exclusivo do desktop. -->
+        <div class="home-conecta__mobile-showcase" id="home-conecta-mobile" hidden>
+          <h3 class="home-conecta__mobile-title">Mais recente</h3>
+          <div id="home-conecta-mobile-latest"></div>
+
+          <div class="home-conecta__mobile-highlights" id="home-conecta-mobile-highlights" hidden>
+            <div class="home-conecta__mini-heading">
+              <h3>Destaques</h3>
+              <a class="home-conecta__mini-all" href="./ludo-conecta/">
+                Ver todos <span aria-hidden="true">→</span>
+              </a>
+            </div>
+            <div class="home-conecta__mini-track" id="home-conecta-mini-track"
+                 role="region" aria-roledescription="carrossel" tabindex="0"
+                 aria-label="Outros artigos em destaque no Ludo Conecta"></div>
+            <div class="home-conecta__mini-controls" id="home-conecta-mini-controls"
+                 aria-label="Navegar pelos destaques" hidden>
+              <button class="home-conecta__mini-arrow" id="home-conecta-mini-prev"
+                      type="button" aria-label="Destaque anterior" disabled>‹</button>
+              <div class="home-conecta__mini-dots" id="home-conecta-mini-dots"></div>
+              <button class="home-conecta__mini-arrow" id="home-conecta-mini-next"
+                      type="button" aria-label="Próximo destaque">›</button>
+            </div>
+          </div>
         </div>
       </div>
     </section>
