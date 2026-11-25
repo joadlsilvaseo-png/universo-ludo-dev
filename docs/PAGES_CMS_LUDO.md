@@ -18,9 +18,19 @@ O Ludo Conecta mantém **dois caminhos de publicação**, sem migrar matérias n
 4. Os artigos novos são salvos em `content/ludo-conecta/articles/*.json`.
 5. Ative **Aprovado para publicação** apenas quando o artigo estiver revisado.
 6. O GitHub Actions **Ludo Conecta - publicar artigos do Pages CMS** gera a página e atualiza `content/ludo-conecta/posts.json`, `pages-manifest.json` e `sitemap.xml`.
-7. Use **Destacar no blog** para priorizar um artigo publicado no portal.
+7. Use **Destacar no blog** para priorizar um artigo entre os até três destaques. O **Mais recente** é automático pela data de publicação (e nunca se repete nos destaques). Quando não houver três artigos marcados, a vitrine usa outros artigos publicados para completar os espaços disponíveis.
 
 Os novos artigos do Pages CMS têm URLs em `/ludo-conecta/materias/{slug}/`. **Não reutilize o slug de uma matéria que já exista no CMS personalizado**, nem altere o slug de uma URL publicada sem providenciar o redirecionamento correspondente.
+
+## Vitrines e imagens — padrão editorial Isabele, identidade Ludo
+
+- Na landing da Universo Ludo e no portal Ludo Conecta, o artigo mais recente ganha card principal com capa 4:3 e, ao lado no desktop/abaixo no mobile, ficam até três destaques horizontais.
+- No mobile, os destaques aceitam swipe e têm setas e indicadores quando houver mais de um artigo. No desktop, ficam empilhados.
+- O botão **Ver todos** abre `/ludo-conecta/todos/`, que reúne todos os artigos publicados dos dois CMS e não inclui rascunhos.
+- **Imagens de capa:** recomendado 1200 × 900 px (4:3), WebP/JPG, foto real autorizada, texto alternativo descritivo. Cards exibem a proporção 4:3 com corte proporcional (object-fit: cover), como na Isabele.
+- **Imagens internas:** conservam a proporção original, sem distorção ou corte, com bordas arredondadas e legenda opcional. O Pages CMS transforma um parágrafo após a imagem com prefixo `Legenda:`, `Foto:`, `Crédito:`, `Imagem:` ou `Fonte:` em legenda vinculada à foto.
+- O campo **Aprovado para publicação** permanece desligado em rascunhos; imagem e data podem ficar vazias em rascunhos, mas o gerador exige capa, ALT, data e SEO na publicação.
+- A grade visual é compartilhada com o modelo Isabele, mas a paleta, as marcas, os links e os conteúdos do Ludo Conecta não se misturam.
 
 ## Como o site funciona
 
