@@ -44,7 +44,7 @@ class CleanHTML(HTMLParser):
         if tag == "img":
             src = safe_image(attrs.get("src"))
             if src:
-                self.out.append('<img src="' + esc(src) + '" alt="' + esc(attrs.get("alt") or "") + '" loading="lazy">')
+                self.out.append('<img src="' + esc(src) + '" alt="' + esc(attrs.get("alt") or "") + '" loading="lazy" decoding="async">')
         elif tag == "a":
             href = str(attrs.get("href") or "").strip()
             parsed = urlparse(href)
@@ -70,11 +70,39 @@ class CleanHTML(HTMLParser):
     def handle_entityref(self, name):
         self.handle_data(html.unescape("&" + name + ";"))
 
+# O Pages CMS pode salvar uma imagem e seu credito em paragrafos separados.
+# Assim como no blog Isabele, uma legenda explicita vira figure/figcaption.
+INLINE_IMAGE_CAPTION = re.compile(
+    r"(?P<image><p>\s*<img\b[^>]*>\s*</p>|<img\b[^>]*>)"
+    r"\s*<p>(?P<caption>.*?)</p>", re.I | re.S
+)
+PHOTO_CREDIT = re.compile(
+    r"\b(?:legenda|foto(?:grafia)?(?:\s+ilustrativa)?|imagem(?:\s+ilustrativa)?"
+    r"|cr[eé]dito(?:s)?|fonte)\s*:", re.I
+)
+
+def format_inline_captions(body):
+    def convert(match):
+        original = match.group(0)
+        caption = match.group("caption")
+        plain = html.unescape(re.sub(r"<[^>]+>", "", caption)).strip()
+        if not plain or len(plain) > 280 or not PHOTO_CREDIT.search(plain):
+            return original
+        # Preserve figuras preexistentes e evite figuras aninhadas.
+        previous = body[:match.start()]
+        if previous.rfind("<figure>") > previous.rfind("</figure>"):
+            return original
+        found = re.search(r"<img\b[^>]*>", match.group("image"), re.I)
+        if not found:
+            return original
+        return "<figure>" + found.group(0) + "<figcaption>" + caption + "</figcaption></figure>"
+    return INLINE_IMAGE_CAPTION.sub(convert, body)
+
 def sanitize(value):
     parser = CleanHTML()
     parser.feed(str(value or ""))
     parser.close()
-    return "".join(parser.out)
+    return format_inline_captions("".join(parser.out))
 
 def write_changed(path, content):
     path.parent.mkdir(parents=True, exist_ok=True)
