@@ -205,6 +205,7 @@ async function loadLatest() {
     aside.append(sideHeading);
     if (secondary.length) {
       const stack = element("div", "home-conecta__desktop-stack");
+      stack.style.setProperty("--hc-count", String(secondary.length));
       stack.append(...secondary.map((article) => buildCard(article)));
       aside.append(stack);
     } else {
