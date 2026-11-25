@@ -27,7 +27,7 @@
   <meta name="twitter:title" content="{{SEO_TITLE}}">
   <meta name="twitter:description" content="{{SEO_DESCRIPTION}}">
   <meta name="twitter:image" content="{{OG_IMAGE}}">
-  <link rel="icon" href="/assets/ludo-conecta.png">
+  <link rel="icon" href="/assets/ludo-conecta.webp">
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/ludo-share.css">
   <script type="application/ld+json">{{JSON_LD}}</script>
@@ -56,9 +56,10 @@
   .lc-content ul{list-style:disc;padding-left:24px}.lc-content ol{list-style:decimal;padding-left:24px}
   @media(max-width:600px){.lc-shell{margin:18px auto 40px}.lc-card{border-radius:16px}h1{font-size:1.92rem}}
   </style>
+  <link rel="stylesheet" href="/css/ludo-article.css">
 </head>
 <body>
-<header class="lc-top"><a href="/ludo-conecta/"><img src="/assets/ludo-conecta.png" alt="Ludo Conecta"> Ludo Conecta</a></header>
+<header class="lc-top"><a href="/ludo-conecta/"><img src="/assets/ludo-conecta.webp" alt="Ludo Conecta"> Ludo Conecta</a></header>
 <main class="lc-shell">
   <a class="lc-back" href="/ludo-conecta/">← Voltar ao blog</a>
   <article class="lc-card">
