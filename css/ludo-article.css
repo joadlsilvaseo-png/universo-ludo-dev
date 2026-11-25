@@ -91,3 +91,19 @@
   .lc-content > img,
   .lc-content img { max-height:none; object-fit:contain; border-radius:18px; }
 }
+
+/* Páginas futuras do CMS personalizado usam .lc-body; mesmo padrão de fotos. */
+.lc-body { color:#29243c; font-size:clamp(1rem,1.25vw,1.07rem); line-height:1.82; }
+.lc-body figure { width:100%; margin:30px 0 37px; }
+.lc-body figure img, .lc-body p > img, .lc-body > img, .lc-body img {
+  display:block; width:100%; max-width:100%; height:auto; max-height:none;
+  object-fit:contain; object-position:center;
+  margin-inline:auto; border-radius:21px; background:#f1eafd;
+}
+.lc-body figcaption { display:block; margin-top:8px; font-size:.87rem; line-height:1.5; color:#655b77; }
+@media(max-width:760px) {
+  .lc-body figure { margin:23px 0 28px; }
+  .lc-body figure img, .lc-body p > img, .lc-body > img, .lc-body img {
+    max-height:none; object-fit:contain; border-radius:18px;
+  }
+}
