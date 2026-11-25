@@ -5,7 +5,7 @@ const CMS_FALLBACK = "/ludo-conecta/materia.html?id=";
 
 const validImage = (value) =>
   typeof value === "string" && COVER.test(value) && !value.includes("..")
-    ? value : "/assets/ludo-conecta.png";
+    ? value : "/assets/ludo-conecta.webp";
 
 async function pagesPublications() {
   const response = await fetch("/content/ludo-conecta/posts.json", { cache: "no-store" });
