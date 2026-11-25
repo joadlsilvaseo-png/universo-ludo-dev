@@ -55,13 +55,13 @@ content:
       - name: cover
         label: Imagem de capa
         type: image
-        required: true
+        description: Opcional enquanto rascunho. Obrigatoria para publicar.
         options:
           path: assets/materias
       - name: coverAlt
         label: Texto ALT da capa
         type: string
-        required: true
+        description: Preencher ao escolher a imagem de capa, antes da publicacao.
       - name: coverCaption
         label: Legenda da capa
         type: text
@@ -72,7 +72,7 @@ content:
       - name: datePublished
         label: Data de publicação (AAAA-MM-DD)
         type: string
-        required: true
+        description: Informar a data real quando aprovar a publicacao.
         pattern: "^\\d{4}-\\d{2}-\\d{2}$"
       - name: dateModified
         label: Última atualização (AAAA-MM-DD)
