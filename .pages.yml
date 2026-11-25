@@ -92,7 +92,7 @@ content:
       - name: body
         label: Texto completo
         type: rich-text
-        description: Fotos internas mantem a proporcao original. Para legendar, adicione um paragrafo logo apos a imagem iniciando com Legenda:, Foto: ou Credito:.
+        description: "Fotos internas mantem a proporcao original. Para legendar, adicione um paragrafo logo apos a imagem iniciando com Legenda:, Foto: ou Credito:."
         required: true
         options:
           format: html
