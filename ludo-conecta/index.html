@@ -58,6 +58,7 @@
 
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/ludo-conecta.css">
+  <link rel="stylesheet" href="../css/ludo-editorial.css">
 </head>
 
 <body>
@@ -146,32 +147,45 @@
           </div>
         </div>
 
-        <div class="blog-heading" hidden>
-          <h2>Em destaque</h2>
-        </div>
-
-        <div class="desktop-featured" id="desktop-featured" hidden>
-          <div class="desktop-featured__main" id="featured-main"></div>
-          <div class="desktop-featured__list" id="featured-list"></div>
-        </div>
-
-        <div class="mobile-featured" id="mobile-featured" hidden>
-          <div class="mobile-featured__viewport">
-            <div class="mobile-featured__track" id="mobile-featured-track"></div>
+        <!-- Vitrine editorial: mesma estrutura do blog Isabele, identidade Universo Ludo. -->
+        <div class="lc-ed-grid" id="ludo-editorial" hidden>
+          <div class="lc-ed-recent-heading">
+            <span class="section-tag">Seleção do Ludo Conecta</span>
+            <h2 id="ludo-recent-title">Mais recente</h2>
           </div>
-
-          <div class="mobile-featured__controls">
-            <button class="mobile-featured__arrow mobile-featured__arrow--prev" type="button" aria-label="Destaque anterior">
-              &#10094;
-            </button>
-
-            <div class="mobile-featured__dots" id="mobile-featured-dots"></div>
-
-            <button class="mobile-featured__arrow mobile-featured__arrow--next" type="button" aria-label="Próximo destaque">
-              &#10095;
-            </button>
+          <div class="lc-ed-primary-slot" id="ludo-recent-post"></div>
+          <div class="lc-ed-highlights-heading">
+            <h2 id="ludo-highlights-title">Destaques</h2>
+            <a class="lc-ed-view-all" href="./todos/">Ver todos <span aria-hidden="true">→</span></a>
+          </div>
+          <div class="lc-ed-highlight-carousel" id="ludo-highlight-carousel">
+            <div class="lc-ed-stack" id="ludo-highlight-track"
+                 role="region" aria-roledescription="carrossel" tabindex="0"
+                 aria-label="Deslize para conhecer outros artigos em destaque"></div>
+            <div class="lc-ed-controls" id="ludo-highlight-controls" aria-label="Navegar pelos artigos em destaque" hidden>
+              <button class="lc-ed-arrow" type="button" id="ludo-highlight-prev" aria-label="Destaque anterior" disabled>‹</button>
+              <div class="lc-ed-dots" id="ludo-highlight-dots"></div>
+              <button class="lc-ed-arrow" type="button" id="ludo-highlight-next" aria-label="Próximo destaque">›</button>
+            </div>
           </div>
         </div>
+      </div>
+    </section>
+
+    <section class="conecta-posts" id="conteudos" hidden>
+      <div class="container">
+
+        <div class="conecta-section-heading">
+          <div>
+            <span class="section-tag">Conteúdos</span>
+            <h2>Mais artigos para <strong>você.</strong></h2>
+          </div>
+        </div>
+
+        <a class="lc-ed-view-all lc-ed-more-link" href="./todos/">Exibir todos os artigos <span aria-hidden="true">→</span></a>
+
+        <div class="conecta-filters" id="ludo-filters" aria-label="Filtrar conteúdos"></div>
+        <div class="conecta-posts__grid" id="ludo-posts" aria-live="polite"></div>
 
       </div>
     </section>
@@ -247,21 +261,7 @@
       </div>
     </section>
 
-    <section class="conecta-posts" id="conteudos" hidden>
-      <div class="container">
 
-        <div class="conecta-section-heading">
-          <div>
-            <span class="section-tag">Conteúdos</span>
-            <h2>Mais conteúdos do <strong>Ludo Conecta.</strong></h2>
-          </div>
-        </div>
-
-        <div class="conecta-filters" id="ludo-filters" aria-label="Filtrar conteúdos"></div>
-        <div class="conecta-posts__grid" id="ludo-posts" aria-live="polite"></div>
-
-      </div>
-    </section>
 
   </main>
 
