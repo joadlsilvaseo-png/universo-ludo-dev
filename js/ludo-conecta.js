@@ -344,6 +344,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!latest || !showcase || !latestSlot || !highlightTrack) return;
 
       latestSlot.innerHTML = leadCard(latest);
+      highlightTrack.style.setProperty("--lc-count", String(Math.max(1, highlights.length)));
       highlightTrack.innerHTML = highlights.length
         ? highlights.map(p => compactCard(p)).join("")
         : '<p class="lc-ed-empty">Novos destaques em breve.</p>';
