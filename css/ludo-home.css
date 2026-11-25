@@ -88,7 +88,7 @@
   font-size:.79rem; font-weight:850; text-decoration:none; white-space:nowrap;
 }
 .home-conecta__desktop-stack {
-  display:grid; grid-template-rows:repeat(3,minmax(0,1fr));
+  display:grid; grid-template-rows:repeat(var(--hc-count,3),minmax(0,1fr));
   gap:14px; height:100%; min-height:0;
 }
 .home-conecta__empty {
