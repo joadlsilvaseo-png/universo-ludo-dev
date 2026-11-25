@@ -55,7 +55,7 @@ content:
       - name: cover
         label: Imagem de capa
         type: image
-        description: Opcional enquanto rascunho. Obrigatoria para publicar.
+        description: Opcional no rascunho. Obrigatoria para publicar. Recomendado 1200 x 900 px (4:3), imagem real e autorizada.
         options:
           path: assets/materias
       - name: coverAlt
@@ -84,7 +84,7 @@ content:
       - name: featured
         label: Destacar no blog
         type: boolean
-        description: Somente matérias publicadas aparecem no site.
+        description: Selecione para priorizar entre os ate 3 Destaques. O artigo Mais recente e automatico; rascunhos nunca aparecem.
       - name: published
         label: Aprovado para publicação
         type: boolean
@@ -92,6 +92,7 @@ content:
       - name: body
         label: Texto completo
         type: rich-text
+        description: Fotos internas mantem a proporcao original. Para legendar, adicione um paragrafo logo apos a imagem iniciando com Legenda:, Foto: ou Credito:.
         required: true
         options:
           format: html
