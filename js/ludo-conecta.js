@@ -1,4 +1,5 @@
 import { loadPublishedArticles } from "./ludo-publications.js";
+import { selectEditorial } from "./ludo-editorial.js";
 const publicSlug = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 function escapeText(s = "") {
   return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;")
@@ -229,259 +230,135 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   const blogHome = document.querySelector(".blog-home");
-  const blogHeading = document.querySelector(".blog-heading");
+  const showcase = document.querySelector("#ludo-editorial");
+  const latestSlot = document.querySelector("#ludo-recent-post");
+  const highlightTrack = document.querySelector("#ludo-highlight-track");
+  const highlightControls = document.querySelector("#ludo-highlight-controls");
+  const highlightDots = document.querySelector("#ludo-highlight-dots");
   const postsSection = document.querySelector(".conecta-posts");
   const postsContainer = document.querySelector("#ludo-posts");
-  const filtersContainer = document.querySelector("#ludo-filters");
-  const desktopFeatured = document.querySelector("#desktop-featured");
-  const desktopMain = document.querySelector("#featured-main");
-  const desktopList = document.querySelector("#featured-list");
-  const mobileFeatured = document.querySelector("#mobile-featured");
-  const mobileTrack = document.querySelector("#mobile-featured-track");
-  const mobileDots = document.querySelector("#mobile-featured-dots");
 
   function formatDate(value) {
-    if (!value) {
-      return "";
-    }
-
-    const date = new Date(`${value}T12:00:00`);
-
-    return new Intl.DateTimeFormat("pt-BR", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(value || ""))) return "";
+    const date = new Date(value + "T12:00:00");
+    return Number.isNaN(date.valueOf()) ? "" : new Intl.DateTimeFormat("pt-BR", {
+      day: "2-digit", month: "short", year: "numeric"
     }).format(date);
   }
-
-  function renderFeatured(posts) {
-    const featuredPosts = posts.filter((post) => post.featured);
-
-    if (!featuredPosts.length) {
-      return;
+  function safePost(p) {
+    return {
+      title: escapeText(p.title),
+      summary: escapeText(p.summary || ""),
+      category: escapeText(p.category || "Ludo Conecta"),
+      date: String(p.date || "").slice(0, 10),
+      image: escapeText(p.image || "/assets/ludo-conecta.webp"),
+      imageAlt: escapeText(p.imageAlt || p.title),
+      url: escapeText(p.url || "/ludo-conecta/")
+    };
+  }
+  function postImage(p, lead = false) {
+    return '<a class="lc-ed-media" href="' + p.url + '" aria-label="Ler: ' + p.title + '">' +
+      '<img src="' + p.image + '" alt="' + p.imageAlt +
+      '" width="1200" height="900" loading="' + (lead ? "eager" : "lazy") +
+      '" decoding="async"></a>';
+  }
+  function postBody(p, tag = "h3", compact = false) {
+    const details = p.summary && !compact ? "<p>" + p.summary + "</p>" : "";
+    return '<div class="lc-ed-body"><span class="lc-ed-category">' + p.category +
+      '</span><' + tag + '><a href="' + p.url + '">' + p.title + '</a></' + tag + '>' +
+      details + '<a class="lc-ed-read" href="' + p.url + '">Ler artigo <span aria-hidden="true">→</span></a></div>';
+  }
+  function leadCard(post) {
+    const p = safePost(post);
+    return '<article class="lc-ed-lead">' + postImage(p, true) + postBody(p) + "</article>";
+  }
+  function compactCard(post, all = false) {
+    const p = safePost(post);
+    return '<article class="' + (all ? "lc-ed-all-card" : "lc-ed-compact") + '">' +
+      postImage(p) + postBody(p, "h3", !all) + "</article>";
+  }
+  function setupHighlights() {
+    if (!highlightTrack || !highlightControls || !highlightDots) return;
+    const cards = [...highlightTrack.querySelectorAll(".lc-ed-compact")];
+    highlightDots.replaceChildren();
+    if (cards.length < 2) { highlightControls.hidden = true; return; }
+    const prev = document.querySelector("#ludo-highlight-prev");
+    const next = document.querySelector("#ludo-highlight-next");
+    const mobile = window.matchMedia("(max-width: 800px)");
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let current = 0;
+    let pending = false;
+    const dots = cards.map((card, i) => {
+      const dot = document.createElement("button");
+      dot.className = "lc-ed-dot" + (i ? "" : " is-active");
+      dot.type = "button";
+      dot.setAttribute("aria-label", "Ir para destaque " + (i + 1) + " de " + cards.length);
+      highlightDots.append(dot);
+      return dot;
+    });
+    function update(index) {
+      current = Math.max(0, Math.min(cards.length - 1, index));
+      dots.forEach((dot, i) => {
+        dot.classList.toggle("is-active", i === current);
+        if (i === current) dot.setAttribute("aria-current", "true");
+        else dot.removeAttribute("aria-current");
+      });
+      if (prev) prev.disabled = current === 0;
+      if (next) next.disabled = current === cards.length - 1;
     }
-
-    blogHome?.classList.remove("is-empty");
-    if (blogHeading) blogHeading.hidden = false;
-
-    const mainPost = featuredPosts[0];
-    const sidePosts = featuredPosts.slice(1, 4);
-
-    if (desktopFeatured && desktopMain && desktopList) {
-      desktopMain.innerHTML = `
-        <article class="desktop-main-card">
-          <a href="${mainPost.url}" aria-label="Ler ${mainPost.title}">
-            <div class="desktop-main-card__image">
-              <img src="${mainPost.image}" alt="${mainPost.imageAlt || mainPost.title}">
-            </div>
-            <div class="desktop-main-card__overlay"></div>
-            <div class="desktop-main-card__content">
-              <div class="desktop-main-card__meta">
-                ${mainPost.category || "Ludo Conecta"} · ${formatDate(mainPost.date)}
-              </div>
-              <h3>${mainPost.title}</h3>
-              <p>${mainPost.summary || ""}</p>
-            </div>
-          </a>
-        </article>
-      `;
-
-      desktopList.innerHTML = sidePosts
-        .map(
-          (post) => `
-            <article class="desktop-list-card">
-              <a href="${post.url}" aria-label="Ler ${post.title}">
-                <div class="desktop-list-card__image">
-                  <img src="${post.image}" alt="${post.imageAlt || post.title}" loading="lazy">
-                </div>
-                <div>
-                  <div class="desktop-list-card__meta">${post.category || "Ludo Conecta"}</div>
-                  <h3>${post.title}</h3>
-                  <p>${formatDate(post.date)}</p>
-                </div>
-              </a>
-            </article>
-          `,
-        )
-        .join("");
-
-      desktopFeatured.classList.toggle("desktop-featured--single", sidePosts.length === 0);
-      desktopList.hidden = sidePosts.length === 0;
-      desktopFeatured.hidden = false;
+    function go(index) {
+      if (!mobile.matches) return;
+      const i = Math.max(0, Math.min(cards.length - 1, index));
+      highlightTrack.scrollTo({
+        left: cards[i].offsetLeft - cards[0].offsetLeft,
+        behavior: reduce.matches ? "auto" : "smooth"
+      });
+      update(i);
     }
-
-    if (mobileFeatured && mobileTrack && mobileDots) {
-      mobileTrack.innerHTML = featuredPosts
-        .map(
-          (post, index) => `
-            <article class="mobile-featured-card${index === 0 ? " is-active" : ""}">
-              <a href="${post.url}" aria-label="Ler ${post.title}">
-                <div class="mobile-featured-card__image">
-                  <img src="${post.image}" alt="${post.imageAlt || post.title}" loading="${index === 0 ? "eager" : "lazy"}">
-                </div>
-                <div class="mobile-featured-card__overlay"></div>
-                <div class="mobile-featured-card__content">
-                  <div class="mobile-featured-card__meta">${post.category || "Ludo Conecta"}</div>
-                  <h3>${post.title}</h3>
-                </div>
-              </a>
-            </article>
-          `,
-        )
-        .join("");
-
-      mobileDots.innerHTML = featuredPosts
-        .map(
-          (_, index) => `
-            <button
-              class="mobile-featured__dot${index === 0 ? " is-active" : ""}"
-              type="button"
-              aria-label="Destaque ${index + 1}"
-              aria-pressed="${index === 0 ? "true" : "false"}"
-            ></button>
-          `,
-        )
-        .join("");
-
-      const slides = Array.from(mobileTrack.querySelectorAll(".mobile-featured-card"));
-      const dots = Array.from(mobileDots.querySelectorAll(".mobile-featured__dot"));
-      const prev = mobileFeatured.querySelector(".mobile-featured__arrow--prev");
-      const next = mobileFeatured.querySelector(".mobile-featured__arrow--next");
-
-      let current = 0;
-
-      function show(index) {
-        current = (index + slides.length) % slides.length;
-        mobileTrack.style.transform = `translateX(-${current * 100}%)`;
-
-        dots.forEach((dot, dotIndex) => {
-          const active = dotIndex === current;
-          dot.classList.toggle("is-active", active);
-          dot.setAttribute("aria-pressed", String(active));
-        });
-      }
-
-      prev?.addEventListener("click", () => show(current - 1));
-      next?.addEventListener("click", () => show(current + 1));
-      dots.forEach((dot, index) => dot.addEventListener("click", () => show(index)));
-
-      mobileFeatured.hidden = false;
-      show(0);
-    }
+    prev?.addEventListener("click", () => go(current - 1));
+    next?.addEventListener("click", () => go(current + 1));
+    dots.forEach((dot, i) => dot.addEventListener("click", () => go(i)));
+    highlightTrack.addEventListener("keydown", (event) => {
+      if (!mobile.matches || !["ArrowLeft", "ArrowRight"].includes(event.key)) return;
+      event.preventDefault();
+      go(current + (event.key === "ArrowRight" ? 1 : -1));
+    });
+    highlightTrack.addEventListener("scroll", () => {
+      if (!mobile.matches || pending) return;
+      pending = true;
+      requestAnimationFrame(() => {
+        pending = false;
+        update(Math.round(highlightTrack.scrollLeft / Math.max(1, highlightTrack.clientWidth)));
+      });
+    }, { passive: true });
+    mobile.addEventListener("change", () => { if (mobile.matches) go(current); });
+    highlightControls.hidden = false;
+    update(0);
   }
 
   async function loadPosts() {
     try {
+      // Apenas registros publicados: o Pages CMS não publica artigos em rascunho.
       const publications = await loadPublishedArticles();
-      const posts = publications.map((p) => ({
-        title: escapeText(p.title),
-        summary: escapeText(p.summary || ""),
-        category: escapeText(p.category || "Ludo Conecta"),
-        date: String(p.date || "").slice(0, 10),
-        image: p.image,
-        imageAlt: escapeText(p.imageAlt || p.title),
-        url: p.url,
-        featured: Boolean(p.featured),
-        featuredPrimary: Boolean(p.featuredPrimary)
-      }));
-      const primaryIndex = posts.findIndex((p) => p.featuredPrimary);
-      if (primaryIndex > 0) posts.unshift(posts.splice(primaryIndex, 1)[0]);
-      if (posts.length && !posts.some((p) => p.featured)) posts[0].featured = true;
+      const { latest, highlights, remaining } = selectEditorial(publications, 3);
+      if (!latest || !showcase || !latestSlot || !highlightTrack) return;
 
-      if (!Array.isArray(posts) || posts.length === 0) {
-        return;
-      }
+      latestSlot.innerHTML = leadCard(latest);
+      highlightTrack.innerHTML = highlights.length
+        ? highlights.map(p => compactCard(p)).join("")
+        : '<p class="lc-ed-empty">Novos destaques em breve.</p>';
+      setupHighlights();
+      showcase.hidden = false;
+      blogHome?.classList.remove("is-empty");
 
-      // Exibe somente artigos aprovados e gerados pelo Pages CMS.
-      const visiblePosts = posts;
-      renderFeatured(visiblePosts);
-
-      if (!postsSection || !postsContainer || !filtersContainer) {
-        return;
-      }
-
-      const regularPosts = visiblePosts.filter((post) => !post.featured);
-
-      if (!regularPosts.length) {
+      if (postsSection && postsContainer && remaining.length) {
+        postsContainer.innerHTML = remaining.map(p => compactCard(p, true)).join("");
+        postsSection.hidden = false;
+      } else if (postsSection) {
         postsSection.hidden = true;
-        return;
       }
-
-      const categories = [
-        "Todos",
-        ...new Set(regularPosts.map((post) => post.category).filter(Boolean)),
-      ];
-
-      let activeCategory = "Todos";
-
-      function renderPosts() {
-        const visiblePosts =
-          activeCategory === "Todos"
-            ? regularPosts
-            : regularPosts.filter((post) => post.category === activeCategory);
-
-        postsContainer.innerHTML = visiblePosts
-          .map(
-            (post) => `
-              <article class="conecta-post-card">
-                <a href="${post.url}" aria-label="Ler ${post.title}">
-                  <div class="conecta-post-card__image">
-                    <img src="${post.image}" alt="${post.imageAlt || post.title}" loading="lazy">
-                  </div>
-
-                  <div class="conecta-post-card__content">
-                    <div class="conecta-post-card__meta">
-                      <span>${post.category || "Ludo Conecta"}</span>
-                      ${post.date ? `<span>•</span><time datetime="${post.date}">${formatDate(post.date)}</time>` : ""}
-                    </div>
-
-                    <h3>${post.title}</h3>
-                    <p>${post.summary || ""}</p>
-                    <span class="conecta-post-card__link">Ler conteúdo →</span>
-                  </div>
-                </a>
-              </article>
-            `,
-          )
-          .join("");
-      }
-
-      filtersContainer.innerHTML = categories
-        .map(
-          (category, index) => `
-            <button
-              class="conecta-filter${index === 0 ? " is-active" : ""}"
-              type="button"
-              data-category="${category}"
-            >
-              ${category}
-            </button>
-          `,
-        )
-        .join("");
-
-      filtersContainer.addEventListener("click", (event) => {
-        const button = event.target.closest("[data-category]");
-
-        if (!button) {
-          return;
-        }
-
-        activeCategory = button.dataset.category || "Todos";
-
-        filtersContainer
-          .querySelectorAll(".conecta-filter")
-          .forEach((filterButton) => {
-            filterButton.classList.toggle("is-active", filterButton === button);
-          });
-
-        renderPosts();
-      });
-
-      renderPosts();
-      postsSection.hidden = false;
-    } catch {
-      postsSection?.setAttribute("hidden", "");
+    } catch (error) {
+      console.warn("Ludo Conecta: não foi possível carregar os artigos.", error);
     }
   }
 
