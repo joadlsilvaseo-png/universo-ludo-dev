@@ -263,7 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
       '" decoding="async"></a>';
   }
   function postBody(p, tag = "h3", compact = false) {
-    const details = p.summary && !compact ? "<p>" + p.summary + "</p>" : "";
+    const details = p.summary ? "<p>" + p.summary + "</p>" : "";
     return '<div class="lc-ed-body"><span class="lc-ed-category">' + p.category +
       '</span><' + tag + '><a href="' + p.url + '">' + p.title + '</a></' + tag + '>' +
       details + '<a class="lc-ed-read" href="' + p.url + '">Ler artigo <span aria-hidden="true">→</span></a></div>';
