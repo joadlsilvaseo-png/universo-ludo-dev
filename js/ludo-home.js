@@ -82,6 +82,8 @@ function buildMobilePrimary(article) {
   const img = element("img");
   img.src = imageFor(article);
   img.alt = article.imagemCapaAlt || article.titulo;
+  img.width = 1200;
+  img.height = 900;
   img.loading = "lazy";
   img.decoding = "async";
   media.append(img);
@@ -105,6 +107,8 @@ function buildMobileMini(article) {
   const img = element("img");
   img.src = imageFor(article);
   img.alt = article.imagemCapaAlt || article.titulo;
+  img.width = 1200;
+  img.height = 900;
   img.loading = "lazy";
   img.decoding = "async";
   media.append(img);
