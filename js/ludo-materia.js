@@ -80,7 +80,7 @@ function trackDynamicArticleView() {
 }
 
 const SITE = "https://universoludo.com.br";
-const fallbackImage = SITE + "/assets/ludo-conecta.png";
+const fallbackImage = SITE + "/assets/ludo-conecta.webp";
 
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
