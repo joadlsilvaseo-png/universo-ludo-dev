@@ -1,4 +1,5 @@
 import { loadPublishedArticles } from "./ludo-publications.js";
+import { selectEditorial } from "./ludo-editorial.js";
 const section = document.querySelector("#ludo-conecta");
 const track = document.querySelector("#home-conecta-grid");
 const mobileShowcase = document.querySelector("#home-conecta-mobile");
@@ -38,41 +39,27 @@ function displayDate(value) {
   }).format(date);
 }
 
-function buildCard(article, index) {
-  const card = element("article", "home-conecta-card" + (index === 0 ? " is-lead" : ""));
-  const link = element("a", "home-conecta-card__link");
-  link.href = article.url || articleUrl(article);
-  link.setAttribute("aria-label", "Ler matéria: " + article.titulo);
-
+function buildCard(article, lead = false) {
+  const card = element("article", "home-conecta-card" + (lead ? " is-lead" : ""));
+  const media = element("a", "home-conecta-card__media");
+  media.href = article.url || articleUrl(article);
+  media.setAttribute("aria-label", "Ler matéria: " + article.titulo);
   const image = element("img", "home-conecta-card__image");
-  image.src = imagePattern.test(article.imagemCapaUrl || "")
-    ? article.imagemCapaUrl : "./assets/ludo-conecta.webp";
+  image.src = imageFor(article);
   image.alt = article.imagemCapaAlt || article.titulo;
-  image.loading = index === 0 ? "eager" : "lazy";
+  image.width = 1200;
+  image.height = 900;
+  image.loading = lead ? "eager" : "lazy";
   image.decoding = "async";
-
-  const shade = element("span", "home-conecta-card__shade");
-  shade.setAttribute("aria-hidden", "true");
-
+  media.append(image);
   const content = element("div", "home-conecta-card__content");
-  const meta = element("div", "home-conecta-card__meta");
-  meta.append(element("span", "", article.categoriaNome || "Ludo Conecta"));
-  const isoDate = publicationDate(article);
-  const readable = displayDate(isoDate);
-  if (readable) {
-    const date = element("time", "", readable);
-    date.dateTime = isoDate;
-    meta.append(date);
-  }
-  content.append(meta, element("h3", "", article.titulo));
-
-  if (index === 0 && article.resumo) {
-    content.append(element("p", "home-conecta-card__summary", article.resumo));
-  }
-  const read = element("span", "home-conecta-card__read", "Ler matéria →");
-  content.append(read);
-  link.append(image, shade, content);
-  card.append(link);
+  content.append(element("span", "home-conecta-card__category", article.categoriaNome || "Ludo Conecta"));
+  const heading = element("h3");
+  heading.append(linkTo(article, "home-conecta-card__title-link", article.titulo));
+  content.append(heading);
+  if (article.resumo) content.append(element("p", "home-conecta-card__summary", article.resumo));
+  content.append(linkTo(article, "home-conecta-card__read", "Ler artigo →"));
+  card.append(media, content);
   return card;
 }
 
@@ -191,34 +178,49 @@ function setupMiniCarousel(cards) {
 async function loadLatest() {
   if (!section || !track) return;
   try {
-    // O agregado já combina somente as matérias publicadas nos dois CMS.
     const published = await loadPublishedArticles();
-    const articles = published.slice(0, 3).map((post) => ({
+    const { latest, highlights } = selectEditorial(published, 3);
+    if (!latest) return;
+    const normalize = (post) => ({
       id: post.id, slug: post.slug, titulo: post.title, resumo: post.summary,
       categoriaNome: post.category, dataPublicacao: post.date,
       imagemCapaUrl: post.image, imagemCapaAlt: post.imageAlt, url: post.url
-    }));
-    if (!articles.length) return;
+    });
+    const main = normalize(latest);
+    const secondary = highlights.map(normalize);
 
-    // Desktop: manter o grid editorial existente.
-    const cards = articles.map((article, index) => buildCard(article, index));
-    track.replaceChildren(...cards);
-    track.classList.toggle("is-single", cards.length === 1);
-    track.classList.toggle("is-pair", cards.length === 2);
+    // Desktop: capa principal + ate 3 destaques horizontais, como na Isabele.
+    const recent = element("div", "home-conecta__desktop-lead");
+    recent.append(element("h3", "home-conecta__desktop-heading", "Mais recente"), buildCard(main, true));
+    const aside = element("div", "home-conecta__desktop-side");
+    const sideHeading = element("div", "home-conecta__desktop-side-heading");
+    sideHeading.append(element("h3", "home-conecta__desktop-heading", "Destaques"));
+    const all = element("a", "home-conecta__mini-all", "Ver todos →");
+    all.href = "./ludo-conecta/todos/";
+    sideHeading.append(all);
+    aside.append(sideHeading);
+    if (secondary.length) {
+      const stack = element("div", "home-conecta__desktop-stack");
+      stack.append(...secondary.map((article) => buildCard(article)));
+      aside.append(stack);
+    } else {
+      aside.append(element("p", "home-conecta__empty", "Novos destaques em breve."));
+    }
+    track.replaceChildren(recent, aside);
 
-    // Mobile: mostrar o mais recente e um carrossel independente de destaques.
+    // Mobile: o ultimo publicado ganha a capa grande; os destaques deslizam.
     if (mobileShowcase && latestSlot && highlightArea && miniTrack) {
-      latestSlot.replaceChildren(buildMobilePrimary(articles[0]));
-      const highlights = articles.slice(1);
-      if (highlights.length) {
-        const miniCards = highlights.map(buildMobileMini);
+      latestSlot.replaceChildren(buildMobilePrimary(main));
+      if (secondary.length) {
+        const miniCards = secondary.map(buildMobileMini);
         miniTrack.replaceChildren(...miniCards);
-        highlightArea.hidden = false;
         setupMiniCarousel(miniCards);
       } else {
-        miniTrack.replaceChildren();
-        highlightArea.hidden = true;
+        miniTrack.replaceChildren(element("p", "home-conecta__empty", "Novos destaques em breve."));
+        if (miniControls) miniControls.hidden = true;
       }
+      // O botao Ver todos fica disponivel mesmo com poucos artigos.
+      highlightArea.hidden = false;
       mobileShowcase.hidden = false;
     }
     section.hidden = false;
