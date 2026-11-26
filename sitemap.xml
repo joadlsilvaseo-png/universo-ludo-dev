@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://universoludo.com.br/</loc>
@@ -9,19 +9,15 @@
     <lastmod>2026-10-31</lastmod>
   </url>
   <url>
+    <loc>https://universoludo.com.br/ludo-conecta/todos/</loc>
+    <lastmod>2026-11-25</lastmod>
+  </url>
+  <url>
     <loc>https://universoludo.com.br/ludo-conecta/materias/onde-jogar-pokemon-tcg-em-guarulhos-conheca-a-universo-ludo/</loc>
     <lastmod>2026-11-20</lastmod>
   </url>
   <url>
     <loc>https://universoludo.com.br/ludo-conecta/materias/pokemon-tcg-em-guarulhos-onde-comprar-cartas-e-comecar-a-jogar/</loc>
     <lastmod>2026-11-20</lastmod>
-  </url>
-  <url>
-    <loc>https://universoludo.com.br/ludo-conecta/todos/</loc>
-    <lastmod>2026-11-25</lastmod>
-  </url>
-  <url>
-    <loc>https://universoludo.com.br/ludo-conecta/materias/como-vender-cartas-pokemon-com-seguranca/</loc>
-    <lastmod>2026-11-25</lastmod>
   </url>
 </urlset>
