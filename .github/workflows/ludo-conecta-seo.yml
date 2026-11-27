@@ -63,7 +63,7 @@ jobs:
                   if not page.is_file():
                       raise AssertionError(f"Artigo publicado sem HTML: {page}")
                   head = page.read_text(encoding="utf-8").split("</head>", 1)[0]
-                  robots = re.search(r'<meta\\s+name="robots"\\s+content="([^"]+)"', head, re.I)
+                  robots = re.search(r'<meta\s+name="robots"\s+content="([^"]+)"', head, re.I)
                   if not robots or "noindex" in robots.group(1).lower() or "index" not in robots.group(1).lower():
                       raise AssertionError(f"Meta robots incorreta: {page}")
                   if "https://universoludo.com.br" + url not in sitemap:
