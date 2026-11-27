@@ -1,4 +1,0 @@
-# No dominio publico, artigos e listagens do Ludo Conecta sao indexaveis.
-# Nao remover o noindex automatico de URLs de preview *.pages.dev.
-https://universoludo.com.br/ludo-conecta/*
-  ! X-Robots-Tag
