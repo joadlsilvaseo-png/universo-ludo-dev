@@ -37,6 +37,40 @@ jobs:
       - name: Gerar HTML e sitemap de publicações
         run: python scripts/build_ludo_static.py
 
+      - name: Proteger indexação e artigos dos dois CMSs
+        run: |
+          python - <<'PY'
+          import json
+          import re
+          from pathlib import Path
+
+          root = Path("ludo-conecta/materias")
+          sitemap = Path("sitemap.xml").read_text(encoding="utf-8")
+          catalogs = [
+              Path("content/ludo-conecta/manifest.json"),
+              Path("content/ludo-conecta/pages-manifest.json"),
+          ]
+          all_slugs = set()
+          for catalog in catalogs:
+              if not catalog.is_file():
+                  raise AssertionError(f"Catálogo não encontrado: {catalog}")
+              slugs = json.loads(catalog.read_text(encoding="utf-8")).get("articles") or {}
+              for slug, url in slugs.items():
+                  if slug in all_slugs:
+                      raise AssertionError(f"Slug duplicado nos CMSs: {slug}")
+                  all_slugs.add(slug)
+                  page = root / slug / "index.html"
+                  if not page.is_file():
+                      raise AssertionError(f"Artigo publicado sem HTML: {page}")
+                  head = page.read_text(encoding="utf-8").split("</head>", 1)[0]
+                  robots = re.search(r'<meta\\s+name="robots"\\s+content="([^"]+)"', head, re.I)
+                  if not robots or "noindex" in robots.group(1).lower() or "index" not in robots.group(1).lower():
+                      raise AssertionError(f"Meta robots incorreta: {page}")
+                  if "https://universoludo.com.br" + url not in sitemap:
+                      raise AssertionError(f"Artigo ausente do sitemap: {slug}")
+          print(f"Validados {len(all_slugs)} artigos publicáveis, sem meta noindex.")
+          PY
+
       - name: Salvar alterações automaticamente
         run: |
           git config user.name "github-actions[bot]"
