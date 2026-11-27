@@ -1,0 +1,53 @@
+name: Ludo Conecta - conferir indexacao HTTP
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ludo-live-indexability.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Conferir status HTTP, X-Robots-Tag e canonical dos artigos
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://universoludo.com.br"
+          for slug in \
+            "como-vender-cartas-pokemon-com-seguranca" \
+            "onde-jogar-pokemon-tcg-em-guarulhos-conheca-a-universo-ludo" \
+            "pokemon-tcg-em-guarulhos-onde-comprar-cartas-e-comecar-a-jogar"
+          do
+            url="$base/ludo-conecta/materias/$slug/"
+            headers=$(mktemp)
+            page=$(mktemp)
+            echo "::group::$url"
+            status=$(curl -sSL --retry 2 --max-time 30 -D "$headers" -o "$page" -w '%{http_code}' "$url")
+            echo "HTTP: $status"
+            grep -Ei '^(server|x-robots-tag|content-type|location):' "$headers" || true
+            if [[ "$status" != "200" ]]; then
+              echo "::error::Artigo nao responde HTTP 200: $url"
+              exit 1
+            fi
+            if grep -Eiq '^x-robots-tag:.*(noindex|none)' "$headers"; then
+              echo "::error::Header X-Robots-Tag bloqueia indexacao: $url"
+              exit 1
+            fi
+            if grep -Eiq '<meta[[:space:]]+name=["'\''"]robots["'\''"][^>]*noindex' "$page"; then
+              echo "::error::Meta noindex presente: $url"
+              exit 1
+            fi
+            if ! grep -Fq "<link rel=\"canonical\" href=\"$url\"" "$page"; then
+              echo "::error::Canonical incorreta ou pagina fallback: $url"
+              exit 1
+            fi
+            echo "OK: pagina HTTP 200, canonical correto e sem noindex."
+            echo "::endgroup::"
+            rm -f "$headers" "$page"
+          done
