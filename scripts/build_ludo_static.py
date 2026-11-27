@@ -34,6 +34,9 @@ SITE = "https://universoludo.com.br"
 BASE = "/ludo-conecta/materias/"
 OUTPUT = ROOT / "ludo-conecta" / "materias"
 MANIFEST = ROOT / "content" / "ludo-conecta" / "manifest.json"
+# Protege as publicações do Pages CMS, que compartilham a mesma pasta de saída.
+PAGES_MANIFEST = ROOT / "content/ludo-conecta/pages-manifest.json"
+PAGES_SOURCE = ROOT / "content/ludo-conecta/articles"
 SITEMAP = ROOT / "sitemap.xml"
 PROJECT = "cms-ludo-conecta"
 # Chave pública do SDK Web, NÃO uma credencial de administrador.
@@ -355,22 +358,46 @@ def render_article(article):
 '''
 
 
-def update_sitemap(articles):
-    # Preserva URLs preexistentes que não pertencem às matérias.
+def get_pages_cms_articles():
+    """Lê somente os artigos publicados pertencentes ao Pages CMS."""
+    if not PAGES_MANIFEST.exists():
+        return {}
+    manifest = json.loads(PAGES_MANIFEST.read_text(encoding="utf-8"))
+    pages = {}
+    for slug, url in (manifest.get("articles") or {}).items():
+        if not SLUG.fullmatch(slug) or url != BASE + slug + "/":
+            raise RuntimeError("Manifest Pages CMS com slug/URL inválidos: " + str(slug))
+        source = PAGES_SOURCE / (slug + ".json")
+        if not source.is_file():
+            raise RuntimeError("Artigo Pages CMS sem JSON: " + slug)
+        post = json.loads(source.read_text(encoding="utf-8"))
+        if not post.get("published") or post.get("slug") != slug:
+            raise RuntimeError("Manifest Pages CMS fora de sincronia: " + slug)
+        pages[slug] = iso_date(post.get("dateModified") or post.get("datePublished"))
+    return pages
+
+
+def update_sitemap(articles, pages_articles):
+    # Atualiza as URLs de ambos os CMSs, preservando as outras páginas do site.
     ET.register_namespace("", XML)
     tree = ET.parse(SITEMAP)
     root = tree.getroot()
-    namespace = "{" + XML + "}"
+    ns = "{" + XML + "}"
     for node in list(root):
-        loc = node.find(namespace + "loc")
-        if loc is not None and loc.text and BASE in loc.text:
+        loc = node.find(ns + "loc")
+        if loc is not None and loc.text and loc.text.startswith(SITE + BASE):
             root.remove(node)
     for article in articles:
-        node = ET.SubElement(root, namespace + "url")
-        ET.SubElement(node, namespace + "loc").text = SITE + BASE + article["_slug"] + "/"
+        node = ET.SubElement(root, ns + "url")
+        ET.SubElement(node, ns + "loc").text = SITE + BASE + article["_slug"] + "/"
         modified = iso_date(article.get("atualizadoEm") or article.get("dataPublicacao"))
         if modified:
-            ET.SubElement(node, namespace + "lastmod").text = modified
+            ET.SubElement(node, ns + "lastmod").text = modified
+    for slug, modified in pages_articles.items():
+        node = ET.SubElement(root, ns + "url")
+        ET.SubElement(node, ns + "loc").text = SITE + BASE + slug + "/"
+        if modified:
+            ET.SubElement(node, ns + "lastmod").text = modified
     ET.indent(tree, space="  ")
     tree.write(SITEMAP, encoding="utf-8", xml_declaration=True)
 
@@ -387,9 +414,14 @@ def main():
         article["_slug"] = slug
         slugs.add(slug)
     articles.sort(key=lambda a: (str(a.get("dataPublicacao") or ""), a["_slug"]), reverse=True)
+    pages_articles = get_pages_cms_articles()
+    conflicts = slugs.intersection(pages_articles)
+    if conflicts:
+        raise RuntimeError("Slug duplicado entre os CMSs: " + ", ".join(sorted(conflicts)))
     OUTPUT.mkdir(parents=True, exist_ok=True)
     for file in OUTPUT.glob("*/index.html"):
-        if file.parent.name not in slugs:
+        # Não excluir arquivos cuja responsabilidade pertence ao Pages CMS.
+        if file.parent.name not in slugs and file.parent.name not in pages_articles:
             file.unlink()
             try:
                 file.parent.rmdir()
@@ -404,8 +436,8 @@ def main():
         "schemaVersion": 1,
         "articles": {a["_slug"]: BASE + a["_slug"] + "/" for a in articles}
     }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    update_sitemap(articles)
-    print(f"Ludo Conecta: {len(articles)} HTML(s) e sitemap atualizados.")
+    update_sitemap(articles, pages_articles)
+    print(f"Ludo Conecta: {len(articles)} artigos legados e {len(pages_articles)} artigos Pages CMS preservados.")
 
 
 if __name__ == "__main__":
